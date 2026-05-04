@@ -1,6 +1,4 @@
-import { StatusBar } from 'expo-status-bar';
-import 'react-native-reanimated';
-import { NavigationContainer } from '@react-navigation/native';
+import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
@@ -8,10 +6,10 @@ import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import type {
   RootStackParamList,
   BottomTabParamList,
-} from '@/types';
-import ChatListScreen from '@/screens/ChatListScreen';
-import ChatScreen from '@/screens/ChatScreen';
-import ProfileScreen from '@/screens/ProfileScreen';
+} from '../types';
+import ChatListScreen from '../screens/ChatListScreen';
+import ChatScreen from '../screens/ChatScreen';
+import ProfileScreen from '../screens/ProfileScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator<BottomTabParamList>();
@@ -43,7 +41,7 @@ const ChatListNavigator: React.FC = () => {
           tabBarLabel: 'Messages',
           tabBarIcon: ({ color, size }) => (
             <MaterialCommunityIcons
-              name="chat-multiple-outline"
+              name="message-text-multiple-outline"
               color={color}
               size={size}
             />
@@ -74,49 +72,47 @@ const ChatListNavigator: React.FC = () => {
 };
 
 /**
- * Root Stack Navigator - Main app navigation
+ * Root Stack Navigator - Contains tab navigator and chat screen
+ * Note: NavigationContainer is provided by Expo Router, so we only return the Stack Navigator
  */
-export default function RootLayout() {
+export const RootNavigator: React.FC = () => {
   return (
-    <>
-      <NavigationContainer>
-        <Stack.Navigator
-          screenOptions={{
-            headerShown: true,
-            headerStyle: {
-              backgroundColor: '#fff',
-              elevation: 2,
-              shadowColor: '#000',
-              shadowOffset: { width: 0, height: 2 },
-              shadowOpacity: 0.1,
-              shadowRadius: 3,
-            },
-            headerTitleStyle: {
-              fontSize: 18,
-              fontWeight: '600',
-              color: '#000',
-            },
-            headerTintColor: '#007AFF',
-          }}
-        >
-          <Stack.Screen
-            name="MainTabs"
-            component={ChatListNavigator}
-            options={{
-              headerShown: false,
-            }}
-          />
-          <Stack.Screen
-            name="Chat"
-            component={ChatScreen}
-            options={({ route }) => ({
-              title: route.params.userName,
-              headerBackTitle: 'Back',
-            })}
-          />
-        </Stack.Navigator>
-      </NavigationContainer>
-      <StatusBar style="auto" />
-    </>
+    <Stack.Navigator
+      screenOptions={{
+        headerShown: true,
+        headerStyle: {
+          backgroundColor: '#fff',
+          elevation: 2,
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: 2 },
+          shadowOpacity: 0.1,
+          shadowRadius: 3,
+        },
+        headerTitleStyle: {
+          fontSize: 18,
+          fontWeight: '600',
+          color: '#000',
+        },
+        headerTintColor: '#007AFF',
+      }}
+    >
+      <Stack.Screen
+        name="MainTabs"
+        component={ChatListNavigator}
+        options={{
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
+        name="Chat"
+        component={ChatScreen}
+        options={({ route }) => ({
+          title: route.params.userName,
+          headerBackTitle: 'Back',
+        })}
+      />
+    </Stack.Navigator>
   );
-}
+};
+
+export default RootNavigator;

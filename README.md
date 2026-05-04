@@ -1,4 +1,5 @@
 # Welcome to your Expo app 👋
+- 組員:11254007張宇涵, 11256012魏銥霈, 11256022謝欣穎, 11256041林芯妤
 
 This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
 

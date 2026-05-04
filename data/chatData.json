@@ -1,0 +1,109 @@
+{
+  "users": [
+    {
+      "id": "1",
+      "name": "Alice",
+      "avatar": "https://i.pravatar.cc/150?img=1"
+    },
+    {
+      "id": "2",
+      "name": "Bob",
+      "avatar": "https://i.pravatar.cc/150?img=2"
+    },
+    {
+      "id": "3",
+      "name": "Charlie",
+      "avatar": "https://i.pravatar.cc/150?img=3"
+    }
+  ],
+  "conversations": [
+    {
+      "userId": "1",
+      "userName": "Alice",
+      "messages": [
+        {
+          "id": "1",
+          "sender": "Alice",
+          "content": "Hi! How are you?",
+          "timestamp": "10:30 AM",
+          "isOwn": false
+        },
+        {
+          "id": "2",
+          "sender": "You",
+          "content": "I'm good! How about you?",
+          "timestamp": "10:31 AM",
+          "isOwn": true
+        },
+        {
+          "id": "3",
+          "sender": "Alice",
+          "content": "Great! Let's meet up soon",
+          "timestamp": "10:32 AM",
+          "isOwn": false
+        },
+        {
+          "id": "4",
+          "sender": "You",
+          "content": "Sure, sounds good!",
+          "timestamp": "10:33 AM",
+          "isOwn": true
+        }
+      ]
+    },
+    {
+      "userId": "2",
+      "userName": "Bob",
+      "messages": [
+        {
+          "id": "1",
+          "sender": "Bob",
+          "content": "Hey! Did you finish the project?",
+          "timestamp": "2:00 PM",
+          "isOwn": false
+        },
+        {
+          "id": "2",
+          "sender": "You",
+          "content": "Almost done! I'll send it tomorrow",
+          "timestamp": "2:05 PM",
+          "isOwn": true
+        },
+        {
+          "id": "3",
+          "sender": "Bob",
+          "content": "Awesome! Looking forward to it",
+          "timestamp": "2:10 PM",
+          "isOwn": false
+        }
+      ]
+    },
+    {
+      "userId": "3",
+      "userName": "Charlie",
+      "messages": [
+        {
+          "id": "1",
+          "sender": "Charlie",
+          "content": "Check out this new restaurant!",
+          "timestamp": "7:00 PM",
+          "isOwn": false
+        },
+        {
+          "id": "2",
+          "sender": "You",
+          "content": "Looks delicious! When can we go?",
+          "timestamp": "7:15 PM",
+          "isOwn": true
+        },
+        {
+          "id": "3",
+          "sender": "Charlie",
+          "content": "This weekend? 😊",
+          "timestamp": "7:20 PM",
+          "isOwn": false
+        }
+      ]
+    }
+  ]
+}
