@@ -1,6 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
-    ActivityIndicator,
     Alert,
     FlatList,
     StyleSheet,
@@ -14,47 +13,30 @@ interface UserDoc {
   uid: string;
   name: string;
   email: string;
+  status: string;
 }
 
 const demoUsers: UserDoc[] = [
-  { uid: 'u1', name: 'Ava', email: 'ava@example.com' },
-  { uid: 'u2', name: 'Noah', email: 'noah@example.com' },
-  { uid: 'u3', name: 'Mia', email: 'mia@example.com' },
+  { uid: 'u1', name: 'Ava', email: 'ava@example.com', status: 'Online' },
+  { uid: 'u2', name: 'Noah', email: 'noah@example.com', status: 'Away' },
+  { uid: 'u3', name: 'Mia', email: 'mia@example.com', status: 'Online' },
+  { uid: 'u4', name: 'Liam', email: 'liam@example.com', status: 'Busy' },
+  { uid: 'u5', name: 'Sophia', email: 'sophia@example.com', status: 'Online' },
 ];
 
 const FindFriendsScreen: React.FC = () => {
   const [searchText, setSearchText] = useState('');
-  const [results, setResults] = useState<UserDoc[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [searching, setSearching] = useState(false);
 
-  useEffect(() => {
-    const runSearch = async () => {
-      if (!searchText.trim()) {
-        setResults([]);
-        return;
-      }
+  const filteredUsers = useMemo(() => {
+    const query = searchText.trim().toLowerCase();
 
-      setSearching(true);
-      setLoading(true);
+    if (!query) {
+      return demoUsers;
+    }
 
-      try {
-        await new Promise((resolve) => setTimeout(resolve, 300));
-        const term = searchText.trim().toLowerCase();
-        const matches = demoUsers.filter((user) => {
-          return user.email.toLowerCase().includes(term) || user.name.toLowerCase().includes(term);
-        });
-        setResults(matches);
-      } catch (error: any) {
-        Alert.alert('Search failed', error.message || 'Unable to search users.');
-      } finally {
-        setLoading(false);
-        setSearching(false);
-      }
-    };
-
-    const timeout = setTimeout(runSearch, 300);
-    return () => clearTimeout(timeout);
+    return demoUsers.filter((user) => {
+      return user.email.toLowerCase().includes(query) || user.name.toLowerCase().includes(query);
+    });
   }, [searchText]);
 
   const handleAddFriend = async (friendUid: string) => {
@@ -68,38 +50,28 @@ const FindFriendsScreen: React.FC = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Find Friends</Text>
+      <Text style={styles.title}>Friends</Text>
       <TextInput
         style={styles.input}
-        placeholder="Search by email or name"
+        placeholder="Search friends"
         value={searchText}
         onChangeText={setSearchText}
         autoCapitalize="none"
       />
 
-      {loading ? (
-        <ActivityIndicator style={{ marginTop: 12 }} color="#007AFF" />
-      ) : null}
-
-      {!loading && !searching && !searchText.trim() ? (
-        <Text style={styles.helperText}>Type an email or name to search for users.</Text>
-      ) : null}
-
       <FlatList
-        data={results}
+        data={filteredUsers}
         keyExtractor={(item) => item.uid}
-        ListEmptyComponent={() => {
-          if (!searchText.trim()) return null;
-          return <Text style={styles.emptyText}>No users found.</Text>;
-        }}
+        ListEmptyComponent={<Text style={styles.emptyText}>No friends found.</Text>}
         renderItem={({ item }) => (
           <View style={styles.resultCard}>
             <View style={styles.resultInfo}>
               <Text style={styles.userName}>{item.name}</Text>
               <Text style={styles.userEmail}>{item.email}</Text>
+              <Text style={styles.userStatus}>{item.status}</Text>
             </View>
             <TouchableOpacity style={styles.addButton} onPress={() => handleAddFriend(item.uid)}>
-              <Text style={styles.addButtonText}>Add Friend</Text>
+              <Text style={styles.addButtonText}>Add</Text>
             </TouchableOpacity>
           </View>
         )}
@@ -128,10 +100,6 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     marginBottom: 12,
   },
-  helperText: {
-    color: '#777',
-    marginBottom: 12,
-  },
   resultCard: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -151,6 +119,11 @@ const styles = StyleSheet.create({
   userEmail: {
     color: '#777',
     marginTop: 2,
+  },
+  userStatus: {
+    color: '#34C759',
+    marginTop: 2,
+    fontSize: 12,
   },
   addButton: {
     backgroundColor: '#007AFF',

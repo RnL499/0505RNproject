@@ -1,3 +1,4 @@
+import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import React, { useState } from 'react';
 import {
     ActivityIndicator,
@@ -11,7 +12,11 @@ import {
     View,
 } from 'react-native';
 
-const AuthScreen: React.FC = () => {
+import type { RootStackParamList } from '../types';
+
+type AuthScreenProps = NativeStackScreenProps<RootStackParamList, 'Auth'>;
+
+const AuthScreen: React.FC<AuthScreenProps> = ({ navigation }) => {
   const [isRegistering, setIsRegistering] = useState(true);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -28,7 +33,14 @@ const AuthScreen: React.FC = () => {
 
     try {
       await new Promise((resolve) => setTimeout(resolve, 600));
-      Alert.alert('Demo mode', isRegistering ? `Registered ${name}` : 'Logged in');
+
+      if (isRegistering) {
+        Alert.alert('Success', `Welcome, ${name}! Your account is ready.`);
+      } else {
+        Alert.alert('Success', 'You are logged in.');
+      }
+
+      navigation.replace('MainTabs');
     } catch (error: any) {
       Alert.alert('Authentication failed', error.message || 'Please try again.');
     } finally {

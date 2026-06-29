@@ -1,27 +1,25 @@
+import * as ImagePicker from 'expo-image-picker';
 import React, { useState } from 'react';
 import {
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
-  Image,
-  Alert,
-  ScrollView,
+    Alert,
+    Image,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from 'react-native';
-import * as ImagePicker from 'expo-image-picker';
 
 const ProfileScreen: React.FC = () => {
   const [profileImage, setProfileImage] = useState<string | null>(null);
 
   const pickImage = async () => {
-    // Request permission
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== 'granted') {
       Alert.alert('Permission Required', 'We need permission to access your photos');
       return;
     }
 
-    // Launch image picker
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ['images'],
       allowsEditing: true,
@@ -35,14 +33,12 @@ const ProfileScreen: React.FC = () => {
   };
 
   const takePicture = async () => {
-    // Request permission
     const { status } = await ImagePicker.requestCameraPermissionsAsync();
     if (status !== 'granted') {
       Alert.alert('Permission Required', 'We need permission to access your camera');
       return;
     }
 
-    // Launch camera
     const result = await ImagePicker.launchCameraAsync({
       allowsEditing: true,
       aspect: [1, 1],
@@ -81,18 +77,12 @@ const ProfileScreen: React.FC = () => {
           <Text style={styles.buttonText}>📱 Choose from Gallery</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity
-          style={[styles.button, styles.cameraButton]}
-          onPress={takePicture}
-        >
+        <TouchableOpacity style={[styles.button, styles.cameraButton]} onPress={takePicture}>
           <Text style={styles.buttonText}>📷 Take a Photo</Text>
         </TouchableOpacity>
 
         {profileImage && (
-          <TouchableOpacity
-            style={[styles.button, styles.removeButton]}
-            onPress={handleRemovePhoto}
-          >
+          <TouchableOpacity style={[styles.button, styles.removeButton]} onPress={handleRemovePhoto}>
             <Text style={styles.removeButtonText}>✕ Remove Photo</Text>
           </TouchableOpacity>
         )}
