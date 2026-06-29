@@ -25,11 +25,13 @@ export interface ChatData {
 }
 
 export type RootStackParamList = {
+  Auth: undefined;
   MainTabs: undefined;
   Chat: { userId: string; userName: string };
 };
 
 export type BottomTabParamList = {
-  ChatList: undefined;
-  Profile: undefined;
+  Friends: undefined;
+  Chats: undefined;
+  Settings: undefined;
 };

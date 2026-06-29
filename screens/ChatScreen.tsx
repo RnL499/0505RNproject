@@ -1,100 +1,93 @@
-import React, { useState, useEffect, useRef } from 'react';
-import {
-  View,
-  Text,
-  FlatList,
-  TextInput,
-  TouchableOpacity,
-  StyleSheet,
-  KeyboardAvoidingView,
-  Platform,
-  SafeAreaView,
-  Keyboard,
-  Dimensions,
-} from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import React, { useEffect, useRef, useState } from 'react';
+import {
+    ActivityIndicator,
+    FlatList,
+    Keyboard,
+    KeyboardAvoidingView,
+    Platform,
+    SafeAreaView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
+} from 'react-native';
+
 import type { Message, RootStackParamList } from '../types';
-import chatData from '../data/chatData.json';
 
 type ChatScreenProps = NativeStackScreenProps<RootStackParamList, 'Chat'>;
+
+const demoMessages: Message[] = [
+  {
+    id: 'm1',
+    sender: 'Ava',
+    content: 'Hey! Are you free later?',
+    timestamp: '10:30',
+    isOwn: false,
+  },
+  {
+    id: 'm2',
+    sender: 'You',
+    content: 'Yes, I am.',
+    timestamp: '10:31',
+    isOwn: true,
+  },
+];
 
 const ChatScreen: React.FC<ChatScreenProps> = ({ route, navigation }) => {
   const { userId, userName } = route.params;
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputText, setInputText] = useState('');
   const [keyboardHeight, setKeyboardHeight] = useState(0);
-  const flatListRef = useRef<FlatList>(null);
-  const { height: screenHeight } = Dimensions.get('window');
+  const [loading, setLoading] = useState(true);
+  const flatListRef = useRef<FlatList<Message>>(null);
 
   useEffect(() => {
-    // Set the header title
     navigation.setOptions({
       title: userName,
       headerShown: true,
     });
 
-    // Load messages for this user
-    const conversation = chatData.conversations.find(
-      (c) => c.userId === userId
-    );
-    if (conversation) {
-      setMessages(conversation.messages);
-    }
+    const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', (e) => {
+      setKeyboardHeight(e.endCoordinates.height);
+    });
 
-    // Keyboard listeners
-    const keyboardDidShowListener = Keyboard.addListener(
-      'keyboardDidShow',
-      (e) => {
-        setKeyboardHeight(e.endCoordinates.height);
-        // Scroll to bottom when keyboard appears
-        setTimeout(() => {
-          flatListRef.current?.scrollToEnd({ animated: true });
-        }, 100);
-      }
-    );
+    const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => {
+      setKeyboardHeight(0);
+    });
 
-    const keyboardDidHideListener = Keyboard.addListener(
-      'keyboardDidHide',
-      () => {
-        setKeyboardHeight(0);
-      }
-    );
+    const timeout = setTimeout(() => {
+      setMessages(demoMessages);
+      setLoading(false);
+      setTimeout(() => {
+        flatListRef.current?.scrollToEnd({ animated: false });
+      }, 50);
+    }, 300);
 
     return () => {
+      clearTimeout(timeout);
       keyboardDidShowListener.remove();
       keyboardDidHideListener.remove();
     };
-  }, [userId, userName, navigation]);
+  }, [navigation, userId, userName]);
 
-  const handleSendMessage = () => {
-    if (inputText.trim() === '') return;
+  const handleSendMessage = async () => {
+    if (!inputText.trim()) return;
 
     const newMessage: Message = {
-      id: (messages.length + 1).toString(),
+      id: `${Date.now()}`,
       sender: 'You',
-      content: inputText,
-      timestamp: new Date().toLocaleTimeString('en-US', {
-        hour: '2-digit',
-        minute: '2-digit',
-      }),
+      content: inputText.trim(),
+      timestamp: new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }),
       isOwn: true,
     };
 
-    const updatedMessages = [...messages, newMessage];
-    setMessages(updatedMessages);
+    setMessages((prev) => [...prev, newMessage]);
     setInputText('');
-
-    // Scroll to bottom after sending message
-    setTimeout(() => {
-      flatListRef.current?.scrollToEnd({ animated: true });
-    }, 100);
   };
 
-  const renderMessageItem = ({
-    item,
-  }: {
-    item: Message;
-  }): React.ReactElement => {
+  const renderMessageItem = ({ item }: { item: Message }): React.ReactElement => {
     if (item.isOwn) {
       return (
         <View style={styles.messageRow}>
@@ -124,35 +117,46 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ route, navigation }) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.chatContainer}>
-        <FlatList
-          ref={flatListRef}
-          data={messages}
-          keyExtractor={(item) => item.id}
-          renderItem={renderMessageItem}
-          contentContainerStyle={[
-            styles.messageListContent,
-            { paddingBottom: keyboardHeight > 0 ? 20 : 80 }
-          ]}
-          onContentSizeChange={() => {
-            if (keyboardHeight === 0) {
-              flatListRef.current?.scrollToEnd({ animated: true });
-            }
-          }}
-          onLayout={() => {
-            flatListRef.current?.scrollToEnd({ animated: false });
-          }}
-        />
+      <KeyboardAvoidingView
+        style={styles.chatContainer}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      >
+        {loading ? (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color="#007AFF" />
+          </View>
+        ) : (
+          <FlatList
+            ref={flatListRef}
+            data={messages}
+            keyExtractor={(item) => item.id}
+            renderItem={renderMessageItem}
+            contentContainerStyle={[
+              styles.messageListContent,
+              { paddingBottom: keyboardHeight > 0 ? 20 : 80 },
+            ]}
+            onContentSizeChange={() => {
+              if (keyboardHeight === 0) {
+                flatListRef.current?.scrollToEnd({ animated: true });
+              }
+            }}
+            onLayout={() => {
+              flatListRef.current?.scrollToEnd({ animated: false });
+            }}
+          />
+        )}
 
-        <View style={[
-          styles.inputContainer,
-          {
-            bottom: keyboardHeight > 0 ? keyboardHeight + 10 : 0,
-            position: 'absolute',
-            left: 0,
-            right: 0,
-          }
-        ]}>
+        <View
+          style={[
+            styles.inputContainer,
+            {
+              bottom: keyboardHeight > 0 ? keyboardHeight + 10 : 0,
+              position: 'absolute',
+              left: 0,
+              right: 0,
+            },
+          ]}
+        >
           <TextInput
             style={styles.textInput}
             placeholder="Type a message..."
@@ -163,14 +167,11 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ route, navigation }) => {
             maxLength={500}
             blurOnSubmit={false}
           />
-          <TouchableOpacity
-            style={styles.sendButton}
-            onPress={handleSendMessage}
-          >
+          <TouchableOpacity style={styles.sendButton} onPress={handleSendMessage}>
             <Text style={styles.sendButtonText}>Send</Text>
           </TouchableOpacity>
         </View>
-      </View>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 };
@@ -184,10 +185,15 @@ const styles = StyleSheet.create({
     flex: 1,
     position: 'relative',
   },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   messageListContent: {
     paddingHorizontal: 12,
     paddingVertical: 12,
-    paddingBottom: 80, // Space for input container
+    paddingBottom: 80,
   },
   messageRow: {
     flexDirection: 'row',

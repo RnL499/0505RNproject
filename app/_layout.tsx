@@ -1,25 +1,43 @@
-import { StatusBar } from 'expo-status-bar';
-import 'react-native-reanimated';
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import { StatusBar } from 'expo-status-bar';
+import 'react-native-reanimated';
 
-import type {
-  RootStackParamList,
-  BottomTabParamList,
-} from '@/types';
+import AuthScreen from '@/screens/AuthScreen';
 import ChatListScreen from '@/screens/ChatListScreen';
 import ChatScreen from '@/screens/ChatScreen';
-import ProfileScreen from '@/screens/ProfileScreen';
+import FindFriendsScreen from '@/screens/FindFriendsScreen';
+import SettingsScreen from '@/screens/SettingsScreen';
+import type { BottomTabParamList, RootStackParamList } from '@/types';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator<BottomTabParamList>();
 
-/**
- * Bottom Tab Navigator - Contains ChatList and Profile tabs
- */
-const ChatListNavigator: React.FC = () => {
+const ChatsStackNavigator: React.FC = () => {
+  const ChatsStack = createNativeStackNavigator<RootStackParamList>();
+
+  return (
+    <ChatsStack.Navigator>
+      <ChatsStack.Screen
+        name="MainTabs"
+        component={ChatListScreen}
+        options={{ title: 'Chats' }}
+      />
+      <ChatsStack.Screen
+        name="Chat"
+        component={ChatScreen}
+        options={({ route }) => ({
+          title: route.params.userName,
+          headerBackTitle: 'Back',
+        })}
+      />
+    </ChatsStack.Navigator>
+  );
+};
+
+const MainTabsNavigator: React.FC = () => {
   return (
     <Tab.Navigator
       screenOptions={{
@@ -36,46 +54,43 @@ const ChatListNavigator: React.FC = () => {
       }}
     >
       <Tab.Screen
-        name="ChatList"
-        component={ChatListScreen}
+        name="Friends"
+        component={FindFriendsScreen}
         options={{
-          title: 'Messages',
-          tabBarLabel: 'Messages',
+          title: 'Friends',
+          tabBarLabel: 'Friends',
           tabBarIcon: ({ color, size }) => (
-            <MaterialCommunityIcons
-              name="chat-multiple-outline"
-              color={color}
-              size={size}
-            />
+            <MaterialCommunityIcons name="account-group-outline" color={color} size={size} />
           ),
-          headerShown: true,
-          headerTitle: 'Messages',
         }}
       />
       <Tab.Screen
-        name="Profile"
-        component={ProfileScreen}
+        name="Chats"
+        component={ChatsStackNavigator}
         options={{
-          title: 'Profile',
-          tabBarLabel: 'Profile',
+          title: 'Chats',
+          tabBarLabel: 'Chats',
           tabBarIcon: ({ color, size }) => (
-            <MaterialCommunityIcons
-              name="account-circle-outline"
-              color={color}
-              size={size}
-            />
+            <MaterialCommunityIcons name="message-text-outline" color={color} size={size} />
           ),
-          headerShown: true,
-          headerTitle: 'Profile',
+          headerShown: false,
+        }}
+      />
+      <Tab.Screen
+        name="Settings"
+        component={SettingsScreen}
+        options={{
+          title: 'Settings',
+          tabBarLabel: 'Settings',
+          tabBarIcon: ({ color, size }) => (
+            <MaterialCommunityIcons name="cog-outline" color={color} size={size} />
+          ),
         }}
       />
     </Tab.Navigator>
   );
 };
 
-/**
- * Root Stack Navigator - Main app navigation
- */
 export default function RootLayout() {
   return (
     <>
@@ -100,11 +115,14 @@ export default function RootLayout() {
           }}
         >
           <Stack.Screen
+            name="Auth"
+            component={AuthScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
             name="MainTabs"
-            component={ChatListNavigator}
-            options={{
-              headerShown: false,
-            }}
+            component={MainTabsNavigator}
+            options={{ headerShown: false }}
           />
           <Stack.Screen
             name="Chat"

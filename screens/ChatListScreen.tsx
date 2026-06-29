@@ -1,15 +1,15 @@
-import React, { useState, useEffect } from 'react';
-import {
-  View,
-  Text,
-  FlatList,
-  TouchableOpacity,
-  StyleSheet,
-  ActivityIndicator,
-} from 'react-native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import type { RootStackParamList, Conversation } from '../types';
-import chatData from '../data/chatData.json';
+import React, { useEffect, useState } from 'react';
+import {
+    ActivityIndicator,
+    FlatList,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
+} from 'react-native';
+
+import type { RootStackParamList } from '../types';
 
 type ChatListScreenNavigationProp = NativeStackNavigationProp<
   RootStackParamList,
@@ -20,46 +20,54 @@ interface ChatListProps {
   navigation: ChatListScreenNavigationProp;
 }
 
+interface ChatRoomItem {
+  id: string;
+  participantIds: string[];
+  lastMessage: string;
+  lastMessageTime: string;
+  friendId: string;
+  friendName: string;
+}
+
 const ChatListScreen: React.FC<ChatListProps> = ({ navigation }) => {
-  const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [chatRooms, setChatRooms] = useState<ChatRoomItem[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    setTimeout(() => {
-      setConversations(chatData.conversations);
+    const demoRooms: ChatRoomItem[] = [
+      {
+        id: 'room1',
+        participantIds: ['me', 'u1'],
+        lastMessage: 'Hey! Are you free later?',
+        lastMessageTime: '2026-06-29T10:30:00.000Z',
+        friendId: 'u1',
+        friendName: 'Ava',
+      },
+      {
+        id: 'room2',
+        participantIds: ['me', 'u2'],
+        lastMessage: 'I sent the files over.',
+        lastMessageTime: '2026-06-29T09:15:00.000Z',
+        friendId: 'u2',
+        friendName: 'Noah',
+      },
+    ];
+
+    const timeout = setTimeout(() => {
+      setChatRooms(demoRooms);
       setLoading(false);
-    }, 500);
+    }, 300);
+
+    return () => clearTimeout(timeout);
   }, []);
 
-  const handleUserPress = (userId: string, userName: string) => {
-    navigation.navigate('Chat', { userId, userName });
+  const handleRoomPress = (friendId: string, friendName: string) => {
+    navigation.navigate('Chat', { userId: friendId, userName: friendName });
   };
 
-  const renderConversationItem = ({ item }: { item: Conversation }) => {
-    const lastMessage = item.messages[item.messages.length - 1];
-
-    return (
-      <TouchableOpacity
-        style={styles.conversationItem}
-        onPress={() => handleUserPress(item.userId, item.userName)}
-        activeOpacity={0.7}
-      >
-        <View style={styles.avatarContainer}>
-          <View style={styles.avatar}>
-            <Text style={styles.avatarText}>
-              {item.userName.charAt(0).toUpperCase()}
-            </Text>
-          </View>
-        </View>
-        <View style={styles.conversationContent}>
-          <Text style={styles.userName}>{item.userName}</Text>
-          <Text style={styles.lastMessage} numberOfLines={1}>
-            {lastMessage.content}
-          </Text>
-        </View>
-        <Text style={styles.timestamp}>{lastMessage.timestamp}</Text>
-      </TouchableOpacity>
-    );
+  const formatTime = (value: string) => {
+    if (!value) return '';
+    return new Date(value).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
   };
 
   if (loading) {
@@ -73,10 +81,29 @@ const ChatListScreen: React.FC<ChatListProps> = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <FlatList
-        data={conversations}
-        keyExtractor={(item) => item.userId}
-        renderItem={renderConversationItem}
-        scrollEnabled
+        data={chatRooms}
+        keyExtractor={(item) => item.id}
+        renderItem={({ item }) => (
+          <TouchableOpacity
+            style={styles.conversationItem}
+            onPress={() => handleRoomPress(item.friendId, item.friendName)}
+            activeOpacity={0.7}
+          >
+            <View style={styles.avatarContainer}>
+              <View style={styles.avatar}>
+                <Text style={styles.avatarText}>{item.friendName.charAt(0).toUpperCase()}</Text>
+              </View>
+            </View>
+            <View style={styles.conversationContent}>
+              <Text style={styles.userName}>{item.friendName}</Text>
+              <Text style={styles.lastMessage} numberOfLines={1}>
+                {item.lastMessage}
+              </Text>
+            </View>
+            <Text style={styles.timestamp}>{formatTime(item.lastMessageTime)}</Text>
+          </TouchableOpacity>
+        )}
+        ListEmptyComponent={<Text style={styles.emptyText}>No active chats yet.</Text>}
       />
     </View>
   );
@@ -133,6 +160,10 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#999',
     marginLeft: 8,
+  },
+  emptyText: {
+    padding: 16,
+    color: '#777',
   },
 });
 
