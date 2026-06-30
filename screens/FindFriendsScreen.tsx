@@ -28,6 +28,7 @@ const FindFriendsScreen: React.FC = () => {
     declineFriendRequest,
   } = useApp();
   const [searchText, setSearchText] = useState('');
+  const [searchResultsState, setSearchResultsState] = useState<UserProfile[]>([]);
   const [activeUid, setActiveUid] = useState<string | null>(null);
   const [incomingRequestsState, setIncomingRequestsState] = useState<FriendRequestItem[]>(incomingRequests);
   const [outgoingRequestsState, setOutgoingRequestsState] = useState<FriendRequestItem[]>(outgoingRequests);
@@ -44,8 +45,56 @@ const FindFriendsScreen: React.FC = () => {
 
   const searchResults = useMemo(() => {
     if (!searchText.trim()) return [];
-    return searchAllUsers(searchText);
-  }, [searchAllUsers, searchText]);
+    return searchResultsState;
+  }, [searchResultsState, searchText]);
+
+  const handleSearch = async (text: string) => {
+    const cleanSearchInput = text.trim().toLowerCase();
+    setSearchText(text);
+
+    if (!cleanSearchInput) {
+      setSearchResultsState([]);
+      return;
+    }
+
+    if (cleanSearchInput.includes('@')) {
+      console.log('🔍 開始搜尋用戶，搜尋字串為:', `"${cleanSearchInput}"`);
+      try {
+        const emailQuery = query(
+          collection(db, 'users'),
+          where('email', '==', cleanSearchInput),
+        );
+        const snapshot = await getDocs(emailQuery);
+        console.log('📊 Firestore 回傳的文件數量:', snapshot.size);
+
+        const results: UserProfile[] = snapshot.docs.map((docSnap) => {
+          const data = docSnap.data() as any;
+          return {
+            uid: docSnap.id,
+            name: data.name || '',
+            email: data.email || '',
+            photoURL: data.photoURL || '',
+            searchName: data.searchName || '',
+            createdAt: data.createdAt ? new Date(data.createdAt) : new Date(),
+          };
+        }).filter((user) => user.uid !== currentUser?.uid);
+
+        if (snapshot.size > 0 && results.length === 0 && currentUser && snapshot.docs.some((docSnap) => docSnap.id === currentUser.uid)) {
+          Alert.alert('搜尋失敗', '不能加自己為好友');
+        }
+
+        setSearchResultsState(results);
+      } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : '搜尋用戶失敗';
+        console.error('搜尋用戶錯誤:', message);
+        Alert.alert('搜尋錯誤', message);
+        setSearchResultsState([]);
+      }
+      return;
+    }
+
+    setSearchResultsState(searchAllUsers(cleanSearchInput));
+  };
 
   useEffect(() => {
     if (!currentUser?.uid) return;
@@ -181,6 +230,8 @@ const FindFriendsScreen: React.FC = () => {
         placeholder="輸入名稱 / Email / ID"
         value={searchText}
         onChangeText={setSearchText}
+        onSubmitEditing={() => handleSearch(searchText)}
+        returnKeyType="search"
         autoCapitalize="none"
       />
 
