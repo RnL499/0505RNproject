@@ -14,6 +14,7 @@ import ChatScreen from '@/screens/ChatScreen';
 import FindFriendsScreen from '@/screens/FindFriendsScreen';
 import SettingsScreen from '@/screens/SettingsScreen';
 import type { BottomTabParamList, ChatsStackParamList, RootStackParamList } from '@/types';
+import { AuthProvider } from '../context/AuthContext';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator<BottomTabParamList>();
@@ -112,11 +113,13 @@ function AppNavigation() {
 
 export default function RootLayout() {
   return (
-    <AppProvider>
-      <NavigationContainer>
-        <AppNavigation />
-      </NavigationContainer>
-      <StatusBar style="auto" />
-    </AppProvider>
+    <AuthProvider>
+      <AppProvider>
+        <NavigationContainer>
+          <AppNavigation />
+        </NavigationContainer>
+        <StatusBar style="auto" />
+      </AppProvider>
+    </AuthProvider>
   );
 }
