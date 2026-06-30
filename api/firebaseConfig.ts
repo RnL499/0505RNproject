@@ -1,7 +1,5 @@
 import { initializeApp } from "firebase/app";
-// @ts-ignore
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { getReactNativePersistence, initializeAuth } from "firebase/auth";
+import { initializeAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 
 // 使用您提供的 Firebase 專案設定金鑰
@@ -18,10 +16,8 @@ const firebaseConfig = {
 // 初始化 Firebase
 const app = initializeApp(firebaseConfig);
 
-// 使用 AsyncStorage 持久化保存登入狀態，解決 Expo App 重啟會登出的問題
-export const auth = initializeAuth(app, {
-  persistence: getReactNativePersistence(AsyncStorage),
-});
+// 初始化 Firebase Auth
+export const auth = initializeAuth(app);
 
 // 初始化 Firestore
 export const db = getFirestore(app);
