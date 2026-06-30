@@ -19,6 +19,7 @@ import {
     findUserById,
     generateMessageId,
     generateUid,
+    getFriendRequestId,
     getFriendUids,
     getOrCreateChatRoom,
     isFriend,
@@ -253,12 +254,13 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         throw new Error('對方已邀請你，請先接受邀請');
       }
 
+      const requestId = getFriendRequestId(data.currentUserId, friendUid);
       const next: AppData = {
         ...data,
         friendRequests: [
           ...data.friendRequests,
           {
-            id: generateUid(),
+            id: requestId,
             fromUid: data.currentUserId,
             toUid: friendUid,
             createdAt: new Date().toISOString(),
@@ -274,8 +276,9 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const acceptFriendRequest = useCallback(
     async (fromUid: string) => {
       if (!data?.currentUserId) return;
+      const requestId = getFriendRequestId(fromUid, data.currentUserId);
       const request = data.friendRequests.find(
-        (item) => item.fromUid === fromUid && item.toUid === data.currentUserId,
+        (item) => item.id === requestId && item.fromUid === fromUid && item.toUid === data.currentUserId,
       );
       if (!request) {
         throw new Error('找不到該好友邀請');
@@ -296,9 +299,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       const next: AppData = {
         ...data,
         friendships: nextFriendships,
-        friendRequests: data.friendRequests.filter(
-          (item) => !(item.fromUid === fromUid && item.toUid === data.currentUserId),
-        ),
+        friendRequests: data.friendRequests.filter((item) => item.id !== requestId),
       };
       getOrCreateChatRoom(next, data.currentUserId, fromUid);
       await persist(next);
@@ -309,11 +310,10 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const declineFriendRequest = useCallback(
     async (fromUid: string) => {
       if (!data?.currentUserId) return;
+      const requestId = getFriendRequestId(fromUid, data.currentUserId);
       const next: AppData = {
         ...data,
-        friendRequests: data.friendRequests.filter(
-          (item) => !(item.fromUid === fromUid && item.toUid === data.currentUserId),
-        ),
+        friendRequests: data.friendRequests.filter((item) => item.id !== requestId),
       };
       await persist(next);
     },

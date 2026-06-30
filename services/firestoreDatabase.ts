@@ -13,7 +13,7 @@ import {
 } from 'firebase/firestore';
 
 import { auth, db } from '@/api/firebaseConfig';
-import { getChatRoomId } from '@/utils/chatUtils';
+import { getChatRoomId, getFriendRequestId } from '@/utils/chatUtils';
 
 // 複用 localDatabase 中的型別定義
 export interface StoredUser {
@@ -91,7 +91,7 @@ export const loadAppData = async (): Promise<AppData> => {
       [
         getDocs(collection(db, USERS_COLLECTION)),
         currentUserId ? getDocs(query(collection(db, FRIENDSHIPS_COLLECTION), where('uid', '==', currentUserId))) : Promise.resolve({ docs: [] }),
-        currentUserId ? getDocs(query(collection(db, FRIEND_REQUESTS_COLLECTION), where('toUid', '==', currentUserId))) : Promise.resolve({ docs: [] }),
+        getDocs(collection(db, FRIEND_REQUESTS_COLLECTION)),
         getDocs(collection(db, CHAT_ROOMS_COLLECTION)),
         getDocs(collection(db, MESSAGES_COLLECTION)),
       ] as const,
@@ -305,6 +305,8 @@ export const syncRoomParticipantInfo = (
   }
 };
 
+export { getFriendRequestId };
+
 export default {
   loadAppData,
   saveAppData,
@@ -315,6 +317,7 @@ export default {
   searchUsers,
   generateUid,
   generateMessageId,
+  getFriendRequestId,
   getOrCreateChatRoom,
   syncRoomParticipantInfo,
 };

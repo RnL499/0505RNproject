@@ -1,5 +1,13 @@
-export function getChatRoomId(uid1: string, uid2: string): string {
+export function createStandardizedPairId(uid1: string, uid2: string): string {
   return [uid1, uid2].sort().join('_');
+}
+
+export function getChatRoomId(uid1: string, uid2: string): string {
+  return createStandardizedPairId(uid1, uid2);
+}
+
+export function getFriendRequestId(uid1: string, uid2: string): string {
+  return createStandardizedPairId(uid1, uid2);
 }
 
 export function formatMessageTime(value: Date | string | number | null | undefined): string {
