@@ -26,7 +26,7 @@ import {
     saveAppData,
     searchUsers,
     syncRoomParticipantInfo,
-} from '@/services/localDatabase';
+} from '@/services/firestoreDatabase';
 import type { ChatMessage, ChatRoom, FriendItem, FriendRequestItem, UserProfile } from '@/types';
 
 interface AppContextValue {
