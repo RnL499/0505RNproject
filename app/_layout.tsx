@@ -3,6 +3,8 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { StatusBar } from 'expo-status-bar';
+import { addDoc, collection } from 'firebase/firestore';
+import React, { useEffect } from 'react';
 import { ActivityIndicator, View } from 'react-native';
 import 'react-native-reanimated';
 
@@ -14,6 +16,7 @@ import ChatScreen from '@/screens/ChatScreen';
 import FindFriendsScreen from '@/screens/FindFriendsScreen';
 import SettingsScreen from '@/screens/SettingsScreen';
 import type { BottomTabParamList, ChatsStackParamList, RootStackParamList } from '@/types';
+import { db } from '../api/firebaseConfig';
 import { AuthProvider } from '../context/AuthContext';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -112,6 +115,22 @@ function AppNavigation() {
 }
 
 export default function RootLayout() {
+  useEffect(() => {
+    const testConnection = async () => {
+      try {
+        await addDoc(collection(db, 'test_connection'), {
+          message: '哈囉 Firebase，我有連上嗎？',
+          createdAt: new Date(),
+        });
+        console.log('🔥 [測試成功] 資料已成功寫入 Firebase Firestore！');
+      } catch (error) {
+        console.error('❌ [測試失敗] 根本沒連上 Firebase，錯誤原因：', error);
+      }
+    };
+
+    testConnection();
+  }, []);
+
   return (
     <AuthProvider>
       <AppProvider>

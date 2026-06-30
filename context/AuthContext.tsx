@@ -1,17 +1,17 @@
-import React, {
-  createContext,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-} from 'react';
 import {
-  User,
-  onAuthStateChanged,
-  signInWithEmailAndPassword,
-  signOut,
-  createUserWithEmailAndPassword,
+    User,
+    createUserWithEmailAndPassword,
+    onAuthStateChanged,
+    signInWithEmailAndPassword,
+    signOut,
 } from 'firebase/auth';
+import React, {
+    createContext,
+    useContext,
+    useEffect,
+    useMemo,
+    useState
+} from 'react';
 
 import { auth } from '../api/firebaseConfig';
 
@@ -63,10 +63,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     [user, loading],
   );
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
+  return React.createElement(
+    AuthContext.Provider,
+    { value },
+    children,
   );
 };
 
