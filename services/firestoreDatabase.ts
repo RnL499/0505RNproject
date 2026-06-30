@@ -13,12 +13,14 @@ import {
 } from 'firebase/firestore';
 
 import { auth, db } from '@/api/firebaseConfig';
+import { getChatRoomId } from '@/utils/chatUtils';
 
 // 複用 localDatabase 中的型別定義
 export interface StoredUser {
   uid: string;
   name: string;
   email: string;
+  password?: string;
   photoURL: string;
   searchName: string;
   createdAt: string;
@@ -64,7 +66,7 @@ export interface AppData {
   friendships: StoredFriendship[];
   friendRequests: StoredFriendRequest[];
   chatRooms: StoredChatRoom[];
-  messages: StoredMessage[];
+  messages: Record<string, StoredMessage[]>;
 }
 
 const USERS_COLLECTION = 'users';
@@ -115,10 +117,18 @@ export const loadAppData = async (): Promise<AppData> => {
       ...docSnap.data(),
     } as StoredChatRoom));
 
-    const messages: StoredMessage[] = messagesSnap.docs.map((docSnap) => ({
+    const messageEntries: StoredMessage[] = messagesSnap.docs.map((docSnap) => ({
       id: docSnap.id,
       ...docSnap.data(),
     } as StoredMessage));
+
+    const messages: Record<string, StoredMessage[]> = {};
+    for (const message of messageEntries) {
+      if (!messages[message.roomId]) {
+        messages[message.roomId] = [];
+      }
+      messages[message.roomId].push(message);
+    }
 
     console.log('✅ Firestore 資料加載完成');
 
@@ -169,9 +179,11 @@ export const saveAppData = async (data: AppData): Promise<void> => {
     }
 
     // 保存訊息
-    for (const message of data.messages) {
-      const messageRef = doc(db, MESSAGES_COLLECTION, message.id);
-      await setDoc(messageRef, message, { merge: true });
+    for (const roomMessages of Object.values(data.messages)) {
+      for (const message of roomMessages) {
+        const messageRef = doc(db, MESSAGES_COLLECTION, message.id);
+        await setDoc(messageRef, message, { merge: true });
+      }
     }
 
     console.log('✅ 資料保存完成');
@@ -242,43 +254,50 @@ export const generateMessageId = (): string => {
  * 取得或建立聊天室
  */
 export const getOrCreateChatRoom = (
-  chatRooms: StoredChatRoom[],
+  data: AppData,
   uid1: string,
   uid2: string,
-  participantNames: Record<string, string>,
-  participantPhotos: Record<string, string>,
 ): StoredChatRoom => {
-  const room = chatRooms.find(
-    (r) => r.participants.includes(uid1) && r.participants.includes(uid2),
-  );
+  const roomId = getChatRoomId(uid1, uid2);
+  let room = data.chatRooms.find((r) => r.id === roomId);
 
-  if (room) {
-    return room;
+  if (!room) {
+    const user1 = findUserById(data.users, uid1);
+    const user2 = findUserById(data.users, uid2);
+    room = {
+      id: roomId,
+      participants: [uid1, uid2],
+      participantNames: {
+        [uid1]: user1?.name ?? 'Unknown',
+        [uid2]: user2?.name ?? 'Unknown',
+      },
+      participantPhotos: {
+        [uid1]: user1?.photoURL ?? '',
+        [uid2]: user2?.photoURL ?? '',
+      },
+      lastMessage: '',
+      lastMessageTime: null,
+      lastMessageSenderId: '',
+      unreadCount: { [uid1]: 0, [uid2]: 0 },
+    };
+    data.chatRooms.push(room);
+    if (!data.messages[roomId]) {
+      data.messages[roomId] = [];
+    }
   }
 
-  const newRoom: StoredChatRoom = {
-    id: 'room_' + Math.random().toString(36).substr(2, 9),
-    participants: [uid1, uid2],
-    participantNames,
-    participantPhotos,
-    lastMessage: '',
-    lastMessageTime: null,
-    lastMessageSenderId: '',
-    unreadCount: { [uid1]: 0, [uid2]: 0 },
-  };
-
-  return newRoom;
+  return room;
 };
 
 /**
  * 同步聊天室參與者資訊
  */
 export const syncRoomParticipantInfo = (
+  data: AppData,
   room: StoredChatRoom,
-  users: StoredUser[],
 ): void => {
   for (const uid of room.participants) {
-    const user = findUserById(users, uid);
+    const user = findUserById(data.users, uid);
     if (user) {
       room.participantNames[uid] = user.name;
       room.participantPhotos[uid] = user.photoURL;
