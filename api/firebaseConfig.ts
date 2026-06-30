@@ -1,5 +1,5 @@
 import { initializeApp } from "firebase/app";
-import { initializeAuth } from "firebase/auth";
+import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 
 // 使用您提供的 Firebase 專案設定金鑰
@@ -17,7 +17,13 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 
 // 初始化 Firebase Auth
-export const auth = initializeAuth(app);
+export const auth = getAuth(app);
 
 // 初始化 Firestore
 export const db = getFirestore(app);
+
+if (!db) {
+  console.error('❌ Firestore 初始化失敗');
+} else {
+  console.log('✅ Firebase 與 Firestore 已成功初始化');
+}

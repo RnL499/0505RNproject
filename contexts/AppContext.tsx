@@ -1,3 +1,4 @@
+import { signOut } from 'firebase/auth';
 import React, {
     createContext,
     useCallback,
@@ -7,6 +8,7 @@ import React, {
     useState,
 } from 'react';
 
+import { auth } from '@/api/firebaseConfig';
 import {
     AppData,
     StoredChatRoom,
@@ -209,6 +211,11 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   const logout = useCallback(async () => {
     if (!data) return;
+    try {
+      await signOut(auth);
+    } catch (error) {
+      console.error('Firebase logout error:', error);
+    }
     await persist({ ...data, currentUserId: null });
   }, [data, persist]);
 
