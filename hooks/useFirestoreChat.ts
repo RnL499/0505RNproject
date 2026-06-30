@@ -9,23 +9,15 @@ import {
 } from 'firebase/firestore';
 import { useCallback, useEffect, useState } from 'react';
 
+import type { ChatMessage } from '@/types';
 import { db } from '../api/firebaseConfig';
-
-export interface FirestoreChatMessage {
-  id: string;
-  text: string;
-  senderId: string;
-  senderName: string;
-  senderPhotoURL: string;
-  createdAt: Timestamp | null;
-}
 
 /**
  * Firestore 聊天邏輯 Hook
  * 提供半即時訊息發送和接收功能
  */
 export const useFirestoreChat = (chatRoomId: string, currentUserId: string, currentUserName: string, currentUserPhotoURL: string) => {
-  const [messages, setMessages] = useState<FirestoreChatMessage[]>([]);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -79,14 +71,25 @@ export const useFirestoreChat = (chatRoomId: string, currentUserId: string, curr
       const unsubscribe = onSnapshot(
         q,
         (snapshot) => {
-          const messagesData: FirestoreChatMessage[] = snapshot.docs.map((doc) => ({
-            id: doc.id,
-            text: doc.data().text || '',
-            senderId: doc.data().senderId || '',
-            senderName: doc.data().senderName || '未知使用者',
-            senderPhotoURL: doc.data().senderPhotoURL || '',
-            createdAt: doc.data().createdAt as Timestamp | null,
-          }));
+          console.log('【訊息監聽觸發】當前房間:', chatRoomId, '收到的新訊息筆數:', snapshot.docs.length);
+          const messagesData: ChatMessage[] = snapshot.docs.map((doc) => {
+            const data = doc.data();
+            const createdAtField = data.createdAt;
+            let createdAt = new Date();
+            if (createdAtField instanceof Timestamp) {
+              createdAt = createdAtField.toDate();
+            } else if (typeof createdAtField === 'string' || typeof createdAtField === 'number') {
+              createdAt = new Date(createdAtField);
+            }
+            return {
+              id: doc.id,
+              senderId: data.senderId || '',
+              senderName: data.senderName || '未知使用者',
+              senderPhotoURL: data.senderPhotoURL || '',
+              content: data.text || '',
+              createdAt,
+            };
+          });
 
           setMessages(messagesData);
           setLoading(false);

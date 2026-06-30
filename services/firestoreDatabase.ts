@@ -36,6 +36,12 @@ export interface StoredFriendRequest {
   id: string;
   fromUid: string;
   toUid: string;
+  receiverId?: string;
+  status?: 'pending' | 'accepted' | 'declined';
+  fromName?: string;
+  fromPhotoURL?: string;
+  toName?: string;
+  toPhotoURL?: string;
   createdAt: string;
 }
 

@@ -16,6 +16,7 @@ import {
 import UserAvatar from '@/components/UserAvatar';
 import { DesignSystem } from '@/constants/theme';
 import { useApp } from '@/contexts/AppContext';
+import { useFirestoreChat } from '@/hooks/useFirestoreChat';
 import type { ChatMessage, ChatsStackParamList } from '@/types';
 import { formatMessageTime } from '@/utils/chatUtils';
 
@@ -23,8 +24,13 @@ type ChatScreenProps = NativeStackScreenProps<ChatsStackParamList, 'Chat'>;
 
 const ChatScreen: React.FC<ChatScreenProps> = ({ route, navigation }) => {
   const { roomId, friendName, friendPhotoURL } = route.params;
-  const { currentUser, getMessages, sendMessage, markRoomAsRead, markRoomAsUnread, chatRooms } = useApp();
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const { currentUser, markRoomAsRead, markRoomAsUnread, chatRooms } = useApp();
+  const { messages, loading: chatLoading, error, sendMessage: sendFirestoreMessage } = useFirestoreChat(
+    roomId,
+    currentUser?.uid ?? '',
+    currentUser?.name ?? '',
+    currentUser?.photoURL ?? '',
+  );
   const [inputText, setInputText] = useState('');
   const [keyboardHeight, setKeyboardHeight] = useState(0);
   const flatListRef = useRef<FlatList<ChatMessage>>(null);
@@ -33,10 +39,6 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ route, navigation }) => {
     navigation.setOptions({ title: friendName });
     markRoomAsRead(roomId);
   }, [navigation, friendName, roomId, markRoomAsRead]);
-
-  useEffect(() => {
-    setMessages(getMessages(roomId));
-  }, [getMessages, roomId, chatRooms]);
 
   useEffect(() => {
     const showSub = Keyboard.addListener('keyboardDidShow', (e) => {
@@ -55,7 +57,7 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ route, navigation }) => {
 
   const handleSendMessage = async () => {
     if (!inputText.trim()) return;
-    await sendMessage(roomId, inputText);
+    await sendFirestoreMessage(inputText);
     setInputText('');
   };
 

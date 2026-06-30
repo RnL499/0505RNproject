@@ -1,4 +1,5 @@
-import React, { useMemo, useState } from 'react';
+import { collection, onSnapshot, query, Timestamp, where } from 'firebase/firestore';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
     Alert,
     FlatList,
@@ -9,12 +10,15 @@ import {
     View
 } from 'react-native';
 
+import { db } from '@/api/firebaseConfig';
 import UserAvatar from '@/components/UserAvatar';
 import { DesignSystem } from '@/constants/theme';
 import { useApp } from '@/contexts/AppContext';
+import type { FriendRequestItem } from '@/types';
 
 const FindFriendsScreen: React.FC = () => {
   const {
+    currentUser,
     friends,
     incomingRequests,
     outgoingRequests,
@@ -25,21 +29,73 @@ const FindFriendsScreen: React.FC = () => {
   } = useApp();
   const [searchText, setSearchText] = useState('');
   const [activeUid, setActiveUid] = useState<string | null>(null);
+  const [incomingRequestsState, setIncomingRequestsState] = useState<FriendRequestItem[]>(incomingRequests);
+  const [outgoingRequestsState, setOutgoingRequestsState] = useState<FriendRequestItem[]>(outgoingRequests);
 
   const friendUidSet = useMemo(() => new Set(friends.map((f) => f.uid)), [friends]);
   const incomingUidSet = useMemo(
-    () => new Set(incomingRequests.map((request) => request.fromUid)),
-    [incomingRequests],
+    () => new Set(incomingRequestsState.map((request) => request.fromUid)),
+    [incomingRequestsState],
   );
   const outgoingUidSet = useMemo(
-    () => new Set(outgoingRequests.map((request) => request.toUid)),
-    [outgoingRequests],
+    () => new Set(outgoingRequestsState.map((request) => request.toUid)),
+    [outgoingRequestsState],
   );
 
   const searchResults = useMemo(() => {
     if (!searchText.trim()) return [];
     return searchAllUsers(searchText);
   }, [searchAllUsers, searchText]);
+
+  useEffect(() => {
+    if (!currentUser?.uid) return;
+
+    const incomingQuery = query(
+      collection(db, 'friendRequests'),
+      where('receiverId', '==', currentUser.uid),
+      where('status', '==', 'pending'),
+    );
+    const outgoingQuery = query(
+      collection(db, 'friendRequests'),
+      where('fromUid', '==', currentUser.uid),
+      where('status', '==', 'pending'),
+    );
+
+    const mapDocToRequest = (doc: any): FriendRequestItem => {
+      const data = doc.data();
+      const createdAtField = data.createdAt;
+      let createdAt = new Date();
+      if (createdAtField instanceof Timestamp) {
+        createdAt = createdAtField.toDate();
+      } else if (typeof createdAtField === 'string' || typeof createdAtField === 'number') {
+        createdAt = new Date(createdAtField);
+      }
+      return {
+        id: doc.id,
+        fromUid: data.fromUid || '',
+        toUid: data.toUid || '',
+        fromName: data.fromName || '',
+        fromPhotoURL: data.fromPhotoURL || '',
+        toName: data.toName || '',
+        toPhotoURL: data.toPhotoURL || '',
+        createdAt,
+      };
+    };
+
+    const incomingUnsub = onSnapshot(incomingQuery, (snapshot) => {
+      console.log('【好友監聽觸發】目前登入者 UID:', currentUser.uid, '抓到的邀請數量:', snapshot.docs.length);
+      setIncomingRequestsState(snapshot.docs.map(mapDocToRequest));
+    });
+
+    const outgoingUnsub = onSnapshot(outgoingQuery, (snapshot) => {
+      setOutgoingRequestsState(snapshot.docs.map(mapDocToRequest));
+    });
+
+    return () => {
+      incomingUnsub();
+      outgoingUnsub();
+    };
+  }, [currentUser]);
 
   const handleSendRequest = async (friendUid: string, friendName: string) => {
     setActiveUid(friendUid);
@@ -82,11 +138,11 @@ const FindFriendsScreen: React.FC = () => {
   return (
     <View style={styles.container}>
       <Text style={styles.sectionTitle}>好友邀請</Text>
-      {incomingRequests.length === 0 ? (
+      {incomingRequestsState.length === 0 ? (
         <Text style={styles.hint}>暫時沒有新的好友邀請</Text>
       ) : (
         <View style={styles.inviteList}>
-          {incomingRequests.map((request) => (
+          {incomingRequestsState.map((request) => (
             <View key={request.id} style={styles.inviteCard}>
               <View style={styles.inviteInfo}>
                 <UserAvatar name={request.fromName} photoURL={request.fromPhotoURL} size={40} />

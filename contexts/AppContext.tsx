@@ -255,6 +255,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       }
 
       const requestId = getFriendRequestId(data.currentUserId, friendUid);
+      const friendUser = findUserById(data.users, friendUid);
+      const currentUser = findUserById(data.users, data.currentUserId);
       const next: AppData = {
         ...data,
         friendRequests: [
@@ -263,6 +265,12 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
             id: requestId,
             fromUid: data.currentUserId,
             toUid: friendUid,
+            receiverId: friendUid,
+            status: 'pending',
+            fromName: currentUser?.name ?? '',
+            fromPhotoURL: currentUser?.photoURL ?? '',
+            toName: friendUser?.name ?? '',
+            toPhotoURL: friendUser?.photoURL ?? '',
             createdAt: new Date().toISOString(),
           },
         ],
