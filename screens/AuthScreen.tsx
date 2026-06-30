@@ -12,7 +12,7 @@ import {
     View,
 } from 'react-native';
 
-import { BrandColors } from '@/constants/theme';
+import { DesignSystem } from '@/constants/theme';
 import { useApp } from '@/contexts/AppContext';
 import type { RootStackParamList } from '@/types';
 
@@ -108,61 +108,65 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
-    backgroundColor: '#f4efff',
-    padding: 24,
+    backgroundColor: DesignSystem.colors.background.tertiary,
+    padding: DesignSystem.spacing.lg,
   },
   card: {
-    backgroundColor: '#fff',
-    borderRadius: 16,
-    padding: 24,
-    shadowColor: '#000',
-    shadowOpacity: 0.08,
-    shadowRadius: 10,
-    shadowOffset: { width: 0, height: 4 },
-    elevation: 3,
+    backgroundColor: DesignSystem.colors.background.primary,
+    borderRadius: DesignSystem.borderRadius.lg,
+    padding: DesignSystem.spacing.xl,
+    ...DesignSystem.shadow.md,
   },
   appName: {
     fontSize: 14,
     fontWeight: '700',
-    color: BrandColors.standard,
-    marginBottom: 4,
+    color: DesignSystem.colors.primary,
+    marginBottom: DesignSystem.spacing.xs,
     textAlign: 'center',
   },
   title: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: '700',
-    marginBottom: 8,
+    marginBottom: DesignSystem.spacing.md,
     textAlign: 'center',
-    color: '#1f1143',
+    color: DesignSystem.colors.text.primary,
   },
   subtitle: {
-    color: '#6d5b93',
-    marginBottom: 20,
+    color: DesignSystem.colors.text.secondary,
+    marginBottom: DesignSystem.spacing.lg,
     textAlign: 'center',
+    fontSize: 14,
+    lineHeight: 20,
   },
   input: {
     borderWidth: 1,
-    borderColor: '#dcdfe6',
-    borderRadius: 12,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-    marginBottom: 12,
+    borderColor: DesignSystem.colors.border.light,
+    borderRadius: DesignSystem.borderRadius.md,
+    paddingHorizontal: DesignSystem.spacing.md,
+    paddingVertical: DesignSystem.spacing.md,
+    marginBottom: DesignSystem.spacing.md,
+    fontSize: 16,
+    color: DesignSystem.colors.text.primary,
   },
   button: {
-    backgroundColor: BrandColors.standard,
-    paddingVertical: 13,
-    borderRadius: 12,
+    backgroundColor: DesignSystem.colors.primary,
+    paddingVertical: DesignSystem.spacing.md,
+    borderRadius: DesignSystem.borderRadius.md,
     alignItems: 'center',
-    marginTop: 8,
+    marginTop: DesignSystem.spacing.md,
+    minHeight: 48,
   },
   buttonText: {
     color: '#fff',
     fontWeight: '700',
+    fontSize: 16,
   },
   switchText: {
     textAlign: 'center',
-    marginTop: 16,
-    color: BrandColors.standard,
+    marginTop: DesignSystem.spacing.lg,
+    color: DesignSystem.colors.primary,
+    fontWeight: '600',
+    fontSize: 14,
   },
 });
 

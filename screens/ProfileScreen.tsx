@@ -10,7 +10,6 @@ import {
     View,
 } from 'react-native';
 
-import { BrandColors } from '@/constants/theme';
 
 const ProfileScreen: React.FC = () => {
   const [profileImage, setProfileImage] = useState<string | null>(null);
@@ -112,64 +111,66 @@ const ProfileScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: DesignSystem.colors.background.primary,
   },
   content: {
-    paddingHorizontal: 16,
-    paddingVertical: 20,
+    paddingHorizontal: DesignSystem.spacing.lg,
+    paddingVertical: DesignSystem.spacing.lg,
   },
   title: {
     fontSize: 28,
-    fontWeight: 'bold',
-    color: '#000',
-    marginBottom: 24,
+    fontWeight: '700',
+    color: DesignSystem.colors.text.primary,
+    marginBottom: DesignSystem.spacing.xl,
     textAlign: 'center',
   },
   avatarSection: {
     alignItems: 'center',
-    marginBottom: 32,
+    marginBottom: DesignSystem.spacing.xxl,
   },
   avatarContainer: {
-    marginBottom: 16,
+    marginBottom: DesignSystem.spacing.lg,
   },
   avatar: {
     width: 120,
     height: 120,
     borderRadius: 60,
-    backgroundColor: '#ddd',
+    backgroundColor: DesignSystem.colors.border.light,
   },
   avatarPlaceholder: {
     width: 120,
     height: 120,
     borderRadius: 60,
-    backgroundColor: '#ddd',
+    backgroundColor: DesignSystem.colors.border.light,
     justifyContent: 'center',
     alignItems: 'center',
   },
   placeholderText: {
-    color: '#999',
+    color: DesignSystem.colors.text.tertiary,
     fontSize: 14,
   },
   username: {
     fontSize: 20,
     fontWeight: '600',
-    color: '#000',
-    marginBottom: 4,
+    color: DesignSystem.colors.text.primary,
+    marginBottom: DesignSystem.spacing.xs,
   },
   email: {
     fontSize: 14,
-    color: '#999',
+    color: DesignSystem.colors.text.secondary,
   },
   buttonGroup: {
-    gap: 12,
-    marginBottom: 32,
+    gap: DesignSystem.spacing.md,
+    marginBottom: DesignSystem.spacing.xxl,
   },
   button: {
-    backgroundColor: BrandColors.standard,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderRadius: 8,
+    backgroundColor: DesignSystem.colors.primary,
+    paddingVertical: DesignSystem.spacing.md,
+    paddingHorizontal: DesignSystem.spacing.lg,
+    borderRadius: DesignSystem.borderRadius.md,
     alignItems: 'center',
+    minHeight: 44,
+    justifyContent: 'center',
   },
   buttonText: {
     color: '#fff',
@@ -177,10 +178,10 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   cameraButton: {
-    backgroundColor: '#b19cff',
+    backgroundColor: DesignSystem.colors.primaryDark,
   },
   removeButton: {
-    backgroundColor: '#d498ff',
+    backgroundColor: DesignSystem.colors.state.error,
   },
   removeButtonText: {
     color: '#fff',
@@ -188,31 +189,33 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   infoSection: {
-    backgroundColor: '#f9f9f9',
-    borderRadius: 8,
-    padding: 16,
+    backgroundColor: DesignSystem.colors.background.secondary,
+    borderRadius: DesignSystem.borderRadius.md,
+    padding: DesignSystem.spacing.lg,
+    borderWidth: 1,
+    borderColor: DesignSystem.colors.border.light,
   },
   sectionTitle: {
     fontSize: 16,
-    fontWeight: '600',
-    color: '#000',
-    marginBottom: 12,
+    fontWeight: '700',
+    color: DesignSystem.colors.text.primary,
+    marginBottom: DesignSystem.spacing.md,
   },
   infoItem: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingVertical: 12,
+    paddingVertical: DesignSystem.spacing.md,
     borderBottomWidth: 1,
-    borderBottomColor: '#eee',
+    borderBottomColor: DesignSystem.colors.border.light,
   },
   infoLabel: {
     fontSize: 14,
-    color: '#666',
+    color: DesignSystem.colors.text.secondary,
     fontWeight: '500',
   },
   infoValue: {
     fontSize: 14,
-    color: '#000',
+    color: DesignSystem.colors.text.primary,
     fontWeight: '600',
   },
 });

@@ -12,7 +12,7 @@ import {
 } from 'react-native';
 
 import UserAvatar from '@/components/UserAvatar';
-import { BrandColors } from '@/constants/theme';
+import { BrandColors, DesignSystem } from '@/constants/theme';
 import { useApp } from '@/contexts/AppContext';
 
 const SettingsScreen: React.FC = () => {
@@ -185,11 +185,11 @@ const SettingsScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: DesignSystem.colors.background.primary,
   },
   content: {
-    paddingHorizontal: 16,
-    paddingTop: 16,
+    paddingHorizontal: DesignSystem.spacing.lg,
+    paddingTop: DesignSystem.spacing.lg,
     paddingBottom: 80,
   },
   loadingContainer: {
@@ -199,71 +199,84 @@ const styles = StyleSheet.create({
   },
   avatarSection: {
     alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: DesignSystem.spacing.lg,
+    paddingBottom: DesignSystem.spacing.lg,
+    borderBottomWidth: 1,
+    borderBottomColor: DesignSystem.colors.border.light,
   },
   email: {
-    marginTop: 12,
+    marginTop: DesignSystem.spacing.md,
     fontSize: 14,
-    color: '#666',
+    color: DesignSystem.colors.text.secondary,
   },
   userId: {
-    marginTop: 4,
+    marginTop: DesignSystem.spacing.xs,
     fontSize: 11,
-    color: '#aaa',
+    color: DesignSystem.colors.text.tertiary,
   },
   sectionTitle: {
     fontSize: 16,
-    fontWeight: '600',
-    marginTop: 16,
-    marginBottom: 8,
+    fontWeight: '700',
+    marginTop: DesignSystem.spacing.lg,
+    marginBottom: DesignSystem.spacing.md,
+    color: DesignSystem.colors.text.primary,
   },
   input: {
     borderWidth: 1,
-    borderColor: '#dcdfe6',
-    borderRadius: 12,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-    marginBottom: 12,
+    borderColor: DesignSystem.colors.border.light,
+    borderRadius: DesignSystem.borderRadius.md,
+    paddingHorizontal: DesignSystem.spacing.md,
+    paddingVertical: DesignSystem.spacing.md,
+    marginBottom: DesignSystem.spacing.md,
+    fontSize: 16,
+    backgroundColor: DesignSystem.colors.background.secondary,
+    color: DesignSystem.colors.text.primary,
   },
   button: {
-    backgroundColor: BrandColors.standard,
-    paddingVertical: 12,
-    borderRadius: 12,
+    backgroundColor: DesignSystem.colors.primary,
+    paddingVertical: DesignSystem.spacing.md,
+    borderRadius: DesignSystem.borderRadius.md,
     alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: DesignSystem.spacing.sm,
+    minHeight: 44,
+    justifyContent: 'center',
   },
   buttonText: {
     color: '#fff',
     fontWeight: '700',
+    fontSize: 16,
   },
   secondaryButton: {
-    backgroundColor: BrandColors.standard,
-    paddingVertical: 12,
-    borderRadius: 12,
+    backgroundColor: DesignSystem.colors.primary,
+    paddingVertical: DesignSystem.spacing.md,
+    borderRadius: DesignSystem.borderRadius.md,
     alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: DesignSystem.spacing.sm,
+    minHeight: 44,
+    justifyContent: 'center',
   },
   cameraButton: {
-    backgroundColor: '#b19cff',
+    backgroundColor: DesignSystem.colors.primaryDark,
   },
   secondaryButtonText: {
     color: '#fff',
     fontWeight: '600',
+    fontSize: 16,
   },
   logoutButton: {
-    marginTop: 32,
-    marginBottom: 12,
-    paddingVertical: 16,
-    minHeight: 56,
-    borderRadius: 12,
+    marginTop: DesignSystem.spacing.xl,
+    marginBottom: DesignSystem.spacing.md,
+    paddingVertical: DesignSystem.spacing.md,
+    minHeight: 48,
+    borderRadius: DesignSystem.borderRadius.md,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 2,
-    borderColor: BrandColors.standard,
+    borderColor: DesignSystem.colors.state.error,
     backgroundColor: 'transparent',
   },
   logoutText: {
-    color: BrandColors.standard,
+    color: DesignSystem.colors.state.error,
     fontWeight: '700',
     fontSize: 16,
   },

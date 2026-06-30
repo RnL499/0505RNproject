@@ -14,7 +14,7 @@ import {
 } from 'react-native';
 
 import UserAvatar from '@/components/UserAvatar';
-import { BrandColors } from '@/constants/theme';
+import { DesignSystem } from '@/constants/theme';
 import { useApp } from '@/contexts/AppContext';
 import type { ChatMessage, ChatsStackParamList } from '@/types';
 import { formatMessageTime } from '@/utils/chatUtils';
@@ -188,33 +188,33 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ route, navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f4efff',
+    backgroundColor: DesignSystem.colors.background.tertiary,
   },
   chatContainer: {
     flex: 1,
     position: 'relative',
   },
   messageListContent: {
-    paddingHorizontal: 12,
-    paddingVertical: 12,
+    paddingHorizontal: DesignSystem.spacing.md,
+    paddingVertical: DesignSystem.spacing.md,
     paddingBottom: 80,
     flexGrow: 1,
   },
   emptyText: {
     textAlign: 'center',
-    color: '#999',
+    color: DesignSystem.colors.text.tertiary,
     marginTop: 40,
   },
   messageRow: {
     flexDirection: 'row',
-    marginVertical: 4,
+    marginVertical: DesignSystem.spacing.xs,
     alignItems: 'flex-end',
   },
   spacer: {
     flex: 1,
   },
   otherAvatar: {
-    marginRight: 8,
+    marginRight: DesignSystem.spacing.sm,
     marginBottom: 18,
   },
   ownMessageContainer: {
@@ -222,10 +222,10 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
   },
   ownMessage: {
-    backgroundColor: BrandColors.standard,
-    borderRadius: 12,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
+    backgroundColor: DesignSystem.colors.primary,
+    borderRadius: DesignSystem.borderRadius.lg,
+    paddingHorizontal: DesignSystem.spacing.md,
+    paddingVertical: DesignSystem.spacing.sm,
   },
   ownMessageText: {
     color: '#fff',
@@ -236,51 +236,52 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
   },
   otherMessage: {
-    backgroundColor: '#f7f4ff',
-    borderRadius: 18,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
+    backgroundColor: DesignSystem.colors.primaryLight,
+    borderRadius: DesignSystem.borderRadius.lg,
+    paddingHorizontal: DesignSystem.spacing.md,
+    paddingVertical: DesignSystem.spacing.sm,
     borderWidth: 1,
-    borderColor: '#ede6ff',
+    borderColor: DesignSystem.colors.border.medium,
   },
   otherMessageText: {
-    color: '#1c1c1c',
+    color: DesignSystem.colors.text.primary,
     fontSize: 16,
   },
   messageMetaRow: {
     flexDirection: 'row',
     justifyContent: 'flex-end',
     alignItems: 'center',
-    marginTop: 4,
+    marginTop: DesignSystem.spacing.xs,
   },
   messageTime: {
     fontSize: 11,
-    color: '#999',
+    color: DesignSystem.colors.text.tertiary,
   },
   readReceipt: {
     fontSize: 11,
-    color: BrandColors.standard,
+    color: DesignSystem.colors.primary,
     fontWeight: '700',
+    marginLeft: DesignSystem.spacing.sm,
   },
   unreadBar: {
-    backgroundColor: '#f3e8ff',
-    paddingHorizontal: 12,
-    paddingVertical: 10,
+    backgroundColor: DesignSystem.colors.primaryLight,
+    paddingHorizontal: DesignSystem.spacing.md,
+    paddingVertical: DesignSystem.spacing.sm,
     borderTopWidth: 1,
-    borderTopColor: '#e7d7ff',
+    borderTopColor: DesignSystem.colors.border.medium,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
   },
   unreadText: {
-    color: '#6d5b93',
+    color: DesignSystem.colors.text.secondary,
     fontSize: 13,
   },
   markUnreadButton: {
-    backgroundColor: BrandColors.standard,
-    borderRadius: 20,
-    paddingHorizontal: 14,
-    paddingVertical: 8,
+    backgroundColor: DesignSystem.colors.primary,
+    borderRadius: DesignSystem.borderRadius.round,
+    paddingHorizontal: DesignSystem.spacing.md,
+    paddingVertical: DesignSystem.spacing.sm,
   },
   markUnreadButtonText: {
     color: '#fff',
@@ -289,34 +290,35 @@ const styles = StyleSheet.create({
   },
   inputContainer: {
     flexDirection: 'row',
-    paddingHorizontal: 12,
-    paddingBottom: 12,
-    paddingTop: 8,
+    paddingHorizontal: DesignSystem.spacing.md,
+    paddingBottom: DesignSystem.spacing.md,
+    paddingTop: DesignSystem.spacing.sm,
     alignItems: 'flex-end',
-    backgroundColor: '#fff',
+    backgroundColor: DesignSystem.colors.background.primary,
     borderTopWidth: 1,
-    borderTopColor: '#f0f0f0',
+    borderTopColor: DesignSystem.colors.border.light,
   },
   textInput: {
     flex: 1,
     borderWidth: 1,
-    borderColor: '#b9a7e7',
-    borderRadius: 20,
-    paddingHorizontal: 16,
-    paddingVertical: 8,
+    borderColor: DesignSystem.colors.border.medium,
+    borderRadius: DesignSystem.borderRadius.round,
+    paddingHorizontal: DesignSystem.spacing.md,
+    paddingVertical: DesignSystem.spacing.sm,
     fontSize: 16,
     maxHeight: 100,
     minHeight: 36,
-    backgroundColor: '#fff',
+    backgroundColor: DesignSystem.colors.background.secondary,
+    color: DesignSystem.colors.text.primary,
   },
   sendButton: {
-    backgroundColor: BrandColors.standard,
-    borderRadius: 20,
-    paddingHorizontal: 20,
-    paddingVertical: 8,
+    backgroundColor: DesignSystem.colors.primary,
+    borderRadius: DesignSystem.borderRadius.round,
+    paddingHorizontal: DesignSystem.spacing.lg,
+    paddingVertical: DesignSystem.spacing.sm,
     justifyContent: 'center',
     alignItems: 'center',
-    marginLeft: 8,
+    marginLeft: DesignSystem.spacing.md,
   },
   sendButtonText: {
     color: '#fff',

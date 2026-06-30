@@ -1,6 +1,7 @@
 import React from 'react';
 import { FlatList, StyleSheet, Text, View } from 'react-native';
 
+
 const friends = [
   { id: '1', name: 'Ava', status: 'Online' },
   { id: '2', name: 'Noah', status: 'Away' },
@@ -33,30 +34,31 @@ const FriendsScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
-    paddingHorizontal: 16,
-    paddingTop: 16,
+    backgroundColor: DesignSystem.colors.background.primary,
+    paddingHorizontal: DesignSystem.spacing.lg,
+    paddingTop: DesignSystem.spacing.lg,
   },
   title: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: '700',
-    marginBottom: 12,
+    marginBottom: DesignSystem.spacing.lg,
+    color: DesignSystem.colors.text.primary,
   },
   card: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 12,
+    paddingVertical: DesignSystem.spacing.md,
     borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
+    borderBottomColor: DesignSystem.colors.border.light,
   },
   avatar: {
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: '#007AFF',
+    backgroundColor: DesignSystem.colors.primary,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 12,
+    marginRight: DesignSystem.spacing.md,
   },
   avatarText: {
     color: '#fff',
@@ -66,10 +68,12 @@ const styles = StyleSheet.create({
   name: {
     fontSize: 16,
     fontWeight: '600',
+    color: DesignSystem.colors.text.primary,
   },
   status: {
-    color: '#999',
-    marginTop: 2,
+    color: DesignSystem.colors.text.secondary,
+    marginTop: DesignSystem.spacing.xs,
+    fontSize: 14,
   },
 });
 

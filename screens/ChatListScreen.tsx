@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 
 import UserAvatar from '@/components/UserAvatar';
-import { BrandColors } from '@/constants/theme';
+import { DesignSystem } from '@/constants/theme';
 import { useApp } from '@/contexts/AppContext';
 import type { ChatsStackParamList } from '@/types';
 import { formatMessageTime } from '@/utils/chatUtils';
@@ -159,56 +159,57 @@ const ChatListScreen: React.FC<Props> = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f7f7f7',
+    backgroundColor: DesignSystem.colors.background.secondary,
   },
   searchSection: {
-    paddingHorizontal: 16,
-    paddingTop: 12,
-    paddingBottom: 8,
-    backgroundColor: '#f4efff',
+    paddingHorizontal: DesignSystem.spacing.lg,
+    paddingTop: DesignSystem.spacing.md,
+    paddingBottom: DesignSystem.spacing.sm,
+    backgroundColor: DesignSystem.colors.background.tertiary,
   },
   searchInput: {
-    backgroundColor: '#fff',
-    borderRadius: 18,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
+    backgroundColor: DesignSystem.colors.background.primary,
+    borderRadius: DesignSystem.borderRadius.xl,
+    paddingHorizontal: DesignSystem.spacing.md,
+    paddingVertical: DesignSystem.spacing.sm,
     fontSize: 15,
     borderWidth: 1,
-    borderColor: BrandColors.standard,
+    borderColor: DesignSystem.colors.primary,
+    color: DesignSystem.colors.text.primary,
   },
   sectionBlock: {
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    backgroundColor: '#fff',
+    paddingHorizontal: DesignSystem.spacing.lg,
+    paddingVertical: DesignSystem.spacing.md,
+    backgroundColor: DesignSystem.colors.background.primary,
     borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
+    borderBottomColor: DesignSystem.colors.border.light,
   },
   sectionTitle: {
     fontSize: 16,
     fontWeight: '700',
-    color: BrandColors.standard,
-    marginBottom: 12,
+    color: DesignSystem.colors.primary,
+    marginBottom: DesignSystem.spacing.md,
   },
   friendList: {
-    paddingRight: 8,
+    paddingRight: DesignSystem.spacing.sm,
   },
   friendItem: {
     alignItems: 'center',
-    marginRight: 14,
+    marginRight: DesignSystem.spacing.lg,
     width: 62,
   },
   friendName: {
-    marginTop: 6,
+    marginTop: DesignSystem.spacing.sm,
     fontSize: 12,
-    color: '#444',
+    color: DesignSystem.colors.text.secondary,
     textAlign: 'center',
   },
   chatList: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: DesignSystem.colors.background.primary,
   },
   chatListContent: {
-    paddingBottom: 20,
+    paddingBottom: DesignSystem.spacing.lg,
   },
   emptyList: {
     flexGrow: 1,
@@ -216,18 +217,18 @@ const styles = StyleSheet.create({
   },
   conversationItem: {
     flexDirection: 'row',
-    paddingHorizontal: 16,
-    paddingVertical: 14,
+    paddingHorizontal: DesignSystem.spacing.lg,
+    paddingVertical: DesignSystem.spacing.md,
     borderBottomWidth: 1,
-    borderBottomColor: '#f3f3f3',
+    borderBottomColor: DesignSystem.colors.border.light,
     alignItems: 'center',
-    backgroundColor: '#fff',
+    backgroundColor: DesignSystem.colors.background.primary,
   },
   conversationItemUnread: {
-    backgroundColor: '#f8efff',
+    backgroundColor: DesignSystem.colors.primaryExtraLight,
   },
   avatarMargin: {
-    marginRight: 12,
+    marginRight: DesignSystem.spacing.md,
   },
   conversationContent: {
     flex: 1,
@@ -236,43 +237,43 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 4,
+    marginBottom: DesignSystem.spacing.xs,
   },
   userName: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#1f1143',
+    color: DesignSystem.colors.text.primary,
     flex: 1,
-    marginRight: 8,
+    marginRight: DesignSystem.spacing.sm,
   },
   statusLabel: {
     fontSize: 11,
-    color: '#999',
+    color: DesignSystem.colors.text.tertiary,
   },
   statusLabelUnread: {
-    color: BrandColors.standard,
+    color: DesignSystem.colors.primary,
     fontWeight: '700',
   },
   lastMessage: {
     fontSize: 14,
-    color: '#6d5b93',
+    color: DesignSystem.colors.text.secondary,
   },
   metaColumn: {
     alignItems: 'flex-end',
-    marginLeft: 8,
+    marginLeft: DesignSystem.spacing.sm,
     minWidth: 48,
   },
   timestamp: {
     fontSize: 12,
-    color: '#8e73a9',
+    color: DesignSystem.colors.text.tertiary,
   },
   badge: {
-    marginTop: 4,
-    backgroundColor: BrandColors.standard,
-    borderRadius: 10,
+    marginTop: DesignSystem.spacing.xs,
+    backgroundColor: DesignSystem.colors.primary,
+    borderRadius: DesignSystem.borderRadius.round,
     minWidth: 20,
     height: 20,
-    paddingHorizontal: 6,
+    paddingHorizontal: DesignSystem.spacing.sm,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -282,8 +283,8 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   emptyText: {
-    padding: 20,
-    color: '#8e73a9',
+    padding: DesignSystem.spacing.lg,
+    color: DesignSystem.colors.text.tertiary,
     textAlign: 'center',
   },
 });
