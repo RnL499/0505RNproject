@@ -1,4 +1,4 @@
-import { collection, onSnapshot, query, Timestamp, where } from 'firebase/firestore';
+import { collection, getDocs, onSnapshot, query, Timestamp, where } from 'firebase/firestore';
 import React, { useEffect, useMemo, useState } from 'react';
 import {
     Alert,
@@ -14,7 +14,7 @@ import { db } from '@/api/firebaseConfig';
 import UserAvatar from '@/components/UserAvatar';
 import { DesignSystem } from '@/constants/theme';
 import { useApp } from '@/contexts/AppContext';
-import type { FriendRequestItem } from '@/types';
+import type { FriendRequestItem, UserProfile } from '@/types';
 
 const FindFriendsScreen: React.FC = () => {
   const {
@@ -60,30 +60,35 @@ const FindFriendsScreen: React.FC = () => {
     if (cleanSearchInput.includes('@')) {
       console.log('🔍 開始搜尋用戶，搜尋字串為:', `"${cleanSearchInput}"`);
       try {
-        const emailQuery = query(
-          collection(db, 'users'),
-          where('email', '==', cleanSearchInput),
-        );
-        const snapshot = await getDocs(emailQuery);
+        const snapshot = await getDocs(collection(db, 'users'));
         console.log('📊 Firestore 回傳的文件數量:', snapshot.size);
 
-        const results: UserProfile[] = snapshot.docs.map((docSnap) => {
-          const data = docSnap.data() as any;
-          return {
-            uid: docSnap.id,
-            name: data.name || '',
-            email: data.email || '',
-            photoURL: data.photoURL || '',
-            searchName: data.searchName || '',
-            createdAt: data.createdAt ? new Date(data.createdAt) : new Date(),
-          };
-        }).filter((user) => user.uid !== currentUser?.uid);
+        const foundUsers: UserProfile[] = snapshot.docs
+          .map((docSnap) => {
+            const data = docSnap.data() as any;
+            const dbEmail = ((data.email || data.Email || '') as string)
+              .trim()
+              .toLowerCase();
+            return {
+              uid: docSnap.id,
+              name: data.name || '',
+              email: data.email || data.Email || '',
+              photoURL: data.photoURL || '',
+              searchName: data.searchName || '',
+              createdAt: data.createdAt ? new Date(data.createdAt) : new Date(),
+              _normalizedEmail: dbEmail,
+            } as UserProfile & { _normalizedEmail: string };
+          })
+          .filter((user) => user._normalizedEmail === cleanSearchInput)
+          .filter((user) => user.uid !== currentUser?.uid)
+          .map(({ _normalizedEmail, ...user }) => user);
 
-        if (snapshot.size > 0 && results.length === 0 && currentUser && snapshot.docs.some((docSnap) => docSnap.id === currentUser.uid)) {
-          Alert.alert('搜尋失敗', '不能加自己為好友');
+        if (foundUsers.length === 0) {
+          Alert.alert('查無此用戶');
+          setSearchResultsState([]);
+        } else {
+          setSearchResultsState(foundUsers);
         }
-
-        setSearchResultsState(results);
       } catch (error: unknown) {
         const message = error instanceof Error ? error.message : '搜尋用戶失敗';
         console.error('搜尋用戶錯誤:', message);
