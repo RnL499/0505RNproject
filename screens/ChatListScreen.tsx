@@ -23,7 +23,7 @@ interface Props {
 }
 
 const ChatListScreen: React.FC<Props> = ({ navigation }) => {
-  const { friends, chatRooms, currentUser } = useApp();
+  const { friends, chatRooms, currentUser, createChatRoom } = useApp();
   const [searchText, setSearchText] = useState('');
 
   const filteredChats = useMemo(() => {
@@ -40,8 +40,12 @@ const ChatListScreen: React.FC<Props> = ({ navigation }) => {
     navigation.navigate('Chat', { roomId, friendId, friendName, friendPhotoURL });
   };
 
-  const handleFriendPress = (friendId: string, friendName: string, friendPhotoURL: string) => {
-    const room = chatRooms.find((r) => r.friendUid === friendId);
+  const handleFriendPress = async (friendId: string, friendName: string, friendPhotoURL: string) => {
+    let room = chatRooms.find((r) => r.friendUid === friendId);
+    if (!room) {
+      const roomId = await createChatRoom(friendId);
+      room = chatRooms.find((r) => r.id === roomId) ?? { id: roomId, friendUid: friendId, friendName, friendPhotoURL } as any;
+    }
     if (room) {
       handleRoomPress(room.id, friendId, friendName, friendPhotoURL);
     }

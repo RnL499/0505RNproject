@@ -1,16 +1,16 @@
 import {
-    User,
-    createUserWithEmailAndPassword,
-    onAuthStateChanged,
-    signInWithEmailAndPassword,
-    signOut,
+  User,
+  createUserWithEmailAndPassword,
+  onAuthStateChanged,
+  signInWithEmailAndPassword,
+  signOut,
 } from 'firebase/auth';
 import React, {
-    createContext,
-    useContext,
-    useEffect,
-    useMemo,
-    useState
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useState
 } from 'react';
 
 import { auth } from '../api/firebaseConfig';

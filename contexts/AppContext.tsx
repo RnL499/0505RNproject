@@ -43,6 +43,7 @@ interface AppContextValue {
   logout: () => Promise<void>;
   searchAllUsers: (query: string) => UserProfile[];
   addFriend: (friendUid: string) => Promise<void>;
+  createChatRoom: (friendUid: string) => Promise<string>;
   acceptFriendRequest: (fromUid: string) => Promise<void>;
   declineFriendRequest: (fromUid: string) => Promise<void>;
   updateProfile: (name: string, photoURL: string) => Promise<void>;
@@ -330,6 +331,17 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     [data, persist],
   );
 
+  const createChatRoom = useCallback(
+    async (friendUid: string) => {
+      if (!data?.currentUserId) return '';
+      const next: AppData = { ...data };
+      const room = getOrCreateChatRoom(next, data.currentUserId, friendUid);
+      await persist(next);
+      return room.id;
+    },
+    [data, persist],
+  );
+
   const acceptFriendRequest = useCallback(
     async (fromUid: string) => {
       if (!data?.currentUserId) return;
@@ -522,6 +534,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       logout,
       searchAllUsers,
       addFriend,
+      createChatRoom,
       acceptFriendRequest,
       declineFriendRequest,
       updateProfile,
@@ -544,6 +557,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       logout,
       searchAllUsers,
       addFriend,
+      createChatRoom,
       acceptFriendRequest,
       declineFriendRequest,
       updateProfile,
