@@ -1,4 +1,4 @@
-import { collection, getDocs, onSnapshot, query, Timestamp, where } from 'firebase/firestore';
+import { collection, doc, getDocs, onSnapshot, query, serverTimestamp, setDoc, Timestamp, updateDoc, where } from 'firebase/firestore';
 import React, { useEffect, useMemo, useState } from 'react';
 import {
     Alert,
@@ -20,18 +20,13 @@ const FindFriendsScreen: React.FC = () => {
   const {
     currentUser,
     friends,
-    incomingRequests,
-    outgoingRequests,
     searchAllUsers,
-    addFriend,
-    acceptFriendRequest,
-    declineFriendRequest,
   } = useApp();
   const [searchText, setSearchText] = useState('');
   const [searchResultsState, setSearchResultsState] = useState<UserProfile[]>([]);
   const [activeUid, setActiveUid] = useState<string | null>(null);
-  const [incomingRequestsState, setIncomingRequestsState] = useState<FriendRequestItem[]>(incomingRequests);
-  const [outgoingRequestsState, setOutgoingRequestsState] = useState<FriendRequestItem[]>(outgoingRequests);
+  const [incomingRequestsState, setIncomingRequestsState] = useState<FriendRequestItem[]>([]);
+  const [outgoingRequestsState, setOutgoingRequestsState] = useState<FriendRequestItem[]>([]);
 
   const friendUidSet = useMemo(() => new Set(friends.map((f) => f.uid)), [friends]);
   const incomingUidSet = useMemo(
@@ -42,6 +37,13 @@ const FindFriendsScreen: React.FC = () => {
     () => new Set(outgoingRequestsState.map((request) => request.toUid)),
     [outgoingRequestsState],
   );
+
+  const requestItems = useMemo(() => {
+    const map = new Map<string, FriendRequestItem>();
+    outgoingRequestsState.forEach((item) => map.set(item.id, item));
+    incomingRequestsState.forEach((item) => map.set(item.id, item));
+    return Array.from(map.values());
+  }, [incomingRequestsState, outgoingRequestsState]);
 
   const searchResults = useMemo(() => {
     if (!searchText.trim()) return [];
@@ -111,7 +113,7 @@ const FindFriendsScreen: React.FC = () => {
     );
     const outgoingQuery = query(
       collection(db, 'friendRequests'),
-      where('fromUid', '==', currentUser.uid),
+      where('senderId', '==', currentUser.uid),
       where('status', '==', 'pending'),
     );
 
@@ -126,14 +128,17 @@ const FindFriendsScreen: React.FC = () => {
       }
       return {
         id: doc.id,
-        fromUid: data.fromUid || '',
-        toUid: data.toUid || '',
+        fromUid: data.fromUid || data.senderId || '',
+        toUid: data.toUid || data.receiverId || '',
         fromName: data.fromName || '',
         fromPhotoURL: data.fromPhotoURL || '',
         toName: data.toName || '',
         toPhotoURL: data.toPhotoURL || '',
+        senderId: data.senderId || data.fromUid || '',
+        receiverId: data.receiverId || data.toUid || '',
+        status: data.status || 'pending',
         createdAt,
-      };
+      } as FriendRequestItem & { senderId: string; receiverId: string; status: string };
     };
 
     const incomingUnsub = onSnapshot(incomingQuery, (snapshot) => {
@@ -151,39 +156,70 @@ const FindFriendsScreen: React.FC = () => {
     };
   }, [currentUser]);
 
-  const handleSendRequest = async (friendUid: string, friendName: string) => {
+  const handleSendRequest = async (friendUid: string, friendName: string, friendPhotoURL: string) => {
+    if (!currentUser?.uid) return;
     setActiveUid(friendUid);
+
+    const requestId = [currentUser.uid, friendUid].sort().join('_');
+    const requestRef = doc(db, 'friendRequests', requestId);
+
     try {
-      await addFriend(friendUid);
+      await setDoc(requestRef, {
+        senderId: currentUser.uid,
+        receiverId: friendUid,
+        status: 'pending',
+        fromUid: currentUser.uid,
+        toUid: friendUid,
+        fromName: currentUser.name,
+        fromPhotoURL: currentUser.photoURL,
+        toName: friendName,
+        toPhotoURL: friendPhotoURL,
+        updatedAt: serverTimestamp(),
+      });
       Alert.alert('邀請已送出', `已向 ${friendName} 發送好友邀請`);
       setSearchText('');
+      setSearchResultsState([]);
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : '無法發送邀請';
+      console.error('發送好友邀請錯誤:', message);
       Alert.alert('失敗', message);
     } finally {
       setActiveUid(null);
     }
   };
 
-  const handleAcceptInvite = async (fromUid: string, fromName: string) => {
-    setActiveUid(fromUid);
+  const handleAcceptInvite = async (item: FriendRequestItem) => {
+    if (!currentUser?.uid) return;
+    setActiveUid(item.id);
     try {
-      await acceptFriendRequest(fromUid);
-      Alert.alert('已接受', `已接受 ${fromName} 的好友邀請`);
+      const requestRef = doc(db, 'friendRequests', item.id);
+      await updateDoc(requestRef, {
+        status: 'accepted',
+        updatedAt: serverTimestamp(),
+      });
+      Alert.alert('已接受', `已接受 ${item.fromName} 的好友邀請`);
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : '無法接受邀請';
+      console.error('接受好友邀請錯誤:', message);
       Alert.alert('失敗', message);
     } finally {
       setActiveUid(null);
     }
   };
 
-  const handleDeclineInvite = async (fromUid: string) => {
-    setActiveUid(fromUid);
+  const handleDeclineInvite = async (item: FriendRequestItem) => {
+    if (!currentUser?.uid) return;
+    setActiveUid(item.id);
     try {
-      await declineFriendRequest(fromUid);
-    } catch {
-      // ignore
+      const requestRef = doc(db, 'friendRequests', item.id);
+      await updateDoc(requestRef, {
+        status: 'declined',
+        updatedAt: serverTimestamp(),
+      });
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : '無法拒絕邀請';
+      console.error('拒絕好友邀請錯誤:', message);
+      Alert.alert('失敗', message);
     } finally {
       setActiveUid(null);
     }
@@ -208,17 +244,17 @@ const FindFriendsScreen: React.FC = () => {
               <View style={styles.inviteActions}>
                 <TouchableOpacity
                   style={styles.acceptButton}
-                  disabled={activeUid === request.fromUid}
-                  onPress={() => handleAcceptInvite(request.fromUid, request.fromName)}
+                  disabled={activeUid === request.id}
+                  onPress={() => handleAcceptInvite(request)}
                 >
                   <Text style={styles.acceptButtonText}>
-                    {activeUid === request.fromUid ? '...' : '接受'}
+                    {activeUid === request.id ? '...' : '接受'}
                   </Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={styles.declineButton}
-                  disabled={activeUid === request.fromUid}
-                  onPress={() => handleDeclineInvite(request.fromUid)}
+                  disabled={activeUid === request.id}
+                  onPress={() => handleDeclineInvite(request)}
                 >
                   <Text style={styles.declineButtonText}>拒絕</Text>
                 </TouchableOpacity>
@@ -276,7 +312,7 @@ const FindFriendsScreen: React.FC = () => {
                 <TouchableOpacity
                   style={styles.addButton}
                   disabled={activeUid === item.uid}
-                  onPress={() => handleSendRequest(item.uid, item.name)}
+                  onPress={() => handleSendRequest(item.uid, item.name, item.photoURL)}
                 >
                   <Text style={styles.addButtonText}>
                     {activeUid === item.uid ? '...' : '加好友'}

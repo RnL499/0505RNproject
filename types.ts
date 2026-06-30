@@ -23,6 +23,9 @@ export interface FriendRequestItem {
   fromPhotoURL: string;
   toName: string;
   toPhotoURL: string;
+  senderId: string;
+  receiverId: string;
+  status: 'pending' | 'accepted' | 'declined';
   createdAt: Date;
 }
 
