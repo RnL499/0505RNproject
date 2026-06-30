@@ -8,7 +8,7 @@ import React, {
     useState,
 } from 'react';
 
-import { auth } from '@/api/firebaseConfig';
+import { auth, db } from '@/api/firebaseConfig';
 import {
     AppData,
     StoredChatRoom,
@@ -29,6 +29,7 @@ import {
     syncRoomParticipantInfo,
 } from '@/services/firestoreDatabase';
 import type { ChatMessage, ChatRoom, FriendItem, FriendRequestItem, UserProfile } from '@/types';
+import { collection, onSnapshot, query, where } from 'firebase/firestore';
 
 interface AppContextValue {
   loading: boolean;
@@ -130,6 +131,54 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       setLoading(false);
     });
   }, []);
+
+  useEffect(() => {
+    if (!data?.currentUserId) return;
+
+    const sentQuery = query(
+      collection(db, 'friendRequests'),
+      where('senderId', '==', data.currentUserId),
+    );
+    const receivedQuery = query(
+      collection(db, 'friendRequests'),
+      where('receiverId', '==', data.currentUserId),
+    );
+
+    const mergeRequests = (sentDocs: any[], receivedDocs: any[]) => {
+      const allDocs = [...sentDocs, ...receivedDocs];
+      const requestMap = new Map<string, StoredFriendRequest>();
+      allDocs.forEach((docSnap) => {
+        const request = { id: docSnap.id, ...docSnap.data() } as StoredFriendRequest;
+        requestMap.set(request.id, request);
+      });
+      setData((prev) =>
+        prev
+          ? {
+              ...prev,
+              friendRequests: Array.from(requestMap.values()),
+            }
+          : prev,
+      );
+    };
+
+    let sentDocs: any[] = [];
+    let receivedDocs: any[] = [];
+
+    const sentUnsubscribe = onSnapshot(sentQuery, (snapshot) => {
+      sentDocs = snapshot.docs;
+      mergeRequests(sentDocs, receivedDocs);
+    });
+
+    const receivedUnsubscribe = onSnapshot(receivedQuery, (snapshot) => {
+      receivedDocs = snapshot.docs;
+      mergeRequests(sentDocs, receivedDocs);
+    });
+
+    return () => {
+      sentUnsubscribe();
+      receivedUnsubscribe();
+    };
+  }, [data?.currentUserId]);
 
   const currentUser = useMemo(() => {
     if (!data?.currentUserId) return null;

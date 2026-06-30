@@ -264,6 +264,23 @@ const FindFriendsScreen: React.FC = () => {
         </View>
       )}
 
+      <Text style={[styles.sectionTitle, styles.searchTitle]}>我的好友</Text>
+      {friends.length === 0 ? (
+        <Text style={styles.hint}>尚無好友，請先搜尋加好友</Text>
+      ) : (
+        <View style={styles.friendListSection}>
+          {friends.map((friend) => (
+            <View key={friend.uid} style={styles.friendCard}>
+              <UserAvatar name={friend.name} photoURL={friend.photoURL} size={42} />
+              <View style={styles.friendInfo}>
+                <Text style={styles.userName}>{friend.name}</Text>
+                <Text style={styles.userEmail}>{friend.email}</Text>
+              </View>
+            </View>
+          ))}
+        </View>
+      )}
+
       <Text style={[styles.sectionTitle, styles.searchTitle]}>搜尋加好友</Text>
       <Text style={styles.hint}>可用名稱、Email 或 ID 搜尋</Text>
       <TextInput
@@ -427,6 +444,21 @@ const styles = StyleSheet.create({
   },
   resultInfo: {
     flex: 1,
+  },
+  friendListSection: {
+    backgroundColor: DesignSystem.colors.background.primary,
+    borderRadius: DesignSystem.borderRadius.lg,
+    padding: DesignSystem.spacing.md,
+    marginBottom: DesignSystem.spacing.lg,
+    ...DesignSystem.shadow.sm,
+  },
+  friendCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: DesignSystem.spacing.md,
+  },
+  friendInfo: {
+    marginLeft: DesignSystem.spacing.md,
   },
   userName: {
     fontSize: 16,

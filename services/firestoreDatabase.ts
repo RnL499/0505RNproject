@@ -36,6 +36,7 @@ export interface StoredFriendRequest {
   id: string;
   fromUid: string;
   toUid: string;
+  senderId?: string;
   receiverId?: string;
   status?: 'pending' | 'accepted' | 'declined';
   fromName?: string;
@@ -215,18 +216,44 @@ export const findUserByEmail = (users: StoredUser[], email: string): StoredUser 
  * 幫助函數 - 取得好友 UID
  */
 export const getFriendUids = (data: AppData, uid: string): string[] => {
-  return data.friendships
+  const fromFriendships = data.friendships
     .filter((f) => f.uid === uid)
     .map((f) => f.friendUid);
+
+  const fromAcceptedRequests = data.friendRequests
+    .filter((request) =>
+      request.status === 'accepted' &&
+      (request.senderId === uid || request.receiverId === uid || request.fromUid === uid || request.toUid === uid),
+    )
+    .map((request) => {
+      if (request.senderId === uid || request.fromUid === uid) {
+        return request.receiverId || request.toUid || '';
+      }
+      return request.senderId || request.fromUid || '';
+    })
+    .filter((id): id is string => !!id);
+
+  return Array.from(new Set([...fromFriendships, ...fromAcceptedRequests]));
 };
 
 /**
  * 幫助函數 - 檢查是否為好友
  */
 export const isFriend = (data: AppData, uid1: string, uid2: string): boolean => {
-  return data.friendships.some(
+  const fromFriendships = data.friendships.some(
     (f) => (f.uid === uid1 && f.friendUid === uid2) || (f.uid === uid2 && f.friendUid === uid1),
   );
+  if (fromFriendships) return true;
+
+  return data.friendRequests.some((request) => {
+    if (request.status !== 'accepted') return false;
+    const sender = request.senderId || request.fromUid;
+    const receiver = request.receiverId || request.toUid;
+    return (
+      (sender === uid1 && receiver === uid2) ||
+      (sender === uid2 && receiver === uid1)
+    );
+  });
 };
 
 /**
