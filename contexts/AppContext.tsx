@@ -181,6 +181,30 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     };
   }, [data?.currentUserId]);
 
+  // 監聽 users 與 chatRooms 集合，確保當其他使用者更新名稱或聊天室資訊時，能即時反映
+  useEffect(() => {
+    if (!data?.currentUserId) return;
+
+    const usersUnsub = onSnapshot(collection(db, 'users'), (snapshot) => {
+      const users: StoredUser[] = snapshot.docs.map((docSnap) => ({ uid: docSnap.id, ...(docSnap.data() as any) }));
+      setData((prev) => (prev ? { ...prev, users } : prev));
+    }, (err) => {
+      console.error('users onSnapshot error:', err);
+    });
+
+    const roomsUnsub = onSnapshot(collection(db, 'chatRooms'), (snapshot) => {
+      const chatRooms: StoredChatRoom[] = snapshot.docs.map((docSnap) => ({ id: docSnap.id, ...(docSnap.data() as any) }));
+      setData((prev) => (prev ? { ...prev, chatRooms } : prev));
+    }, (err) => {
+      console.error('chatRooms onSnapshot error:', err);
+    });
+
+    return () => {
+      usersUnsub();
+      roomsUnsub();
+    };
+  }, [data?.currentUserId]);
+
   const currentUser = useMemo(() => {
     if (!data?.currentUserId) return null;
     const user = findUserById(data.users, data.currentUserId);

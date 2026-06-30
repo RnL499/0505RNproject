@@ -15,13 +15,16 @@ import UserAvatar from '@/components/UserAvatar';
 import { DesignSystem } from '@/constants/theme';
 import { useApp } from '@/contexts/AppContext';
 import type { FriendRequestItem, UserProfile } from '@/types';
+import { useNavigation } from '@react-navigation/native';
 
 const FindFriendsScreen: React.FC = () => {
   const {
     currentUser,
     friends,
     searchAllUsers,
+    createChatRoom,
   } = useApp();
+  const navigation = useNavigation<any>();
   const [searchText, setSearchText] = useState('');
   const [searchResultsState, setSearchResultsState] = useState<UserProfile[]>([]);
   const [activeUid, setActiveUid] = useState<string | null>(null);
@@ -263,13 +266,30 @@ const FindFriendsScreen: React.FC = () => {
       ) : (
         <View style={styles.friendListSection}>
           {friends.map((friend) => (
-            <View key={friend.uid} style={styles.friendCard}>
+            <TouchableOpacity
+              key={friend.uid}
+              style={styles.friendCard}
+              activeOpacity={0.8}
+              onPress={async () => {
+                if (!currentUser?.uid) return;
+                try {
+                  const roomId = await createChatRoom(friend.uid);
+                  // Navigate to Chats stack -> Chat screen
+                  navigation.navigate('Chats' as any, {
+                    screen: 'Chat',
+                    params: { roomId, friendId: friend.uid, friendName: friend.name, friendPhotoURL: friend.photoURL },
+                  });
+                } catch (err) {
+                  console.error('建立聊天室或導向失敗:', err);
+                }
+              }}
+            >
               <UserAvatar name={friend.name} photoURL={friend.photoURL} size={42} />
               <View style={styles.friendInfo}>
                 <Text style={styles.userName}>{friend.name}</Text>
                 <Text style={styles.userEmail}>{friend.email}</Text>
               </View>
-            </View>
+            </TouchableOpacity>
           ))}
         </View>
       )}
