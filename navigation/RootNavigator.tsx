@@ -1,15 +1,16 @@
-import React from 'react';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import React from 'react';
 
-import type {
-  RootStackParamList,
-  BottomTabParamList,
-} from '../types';
+import { BrandColors } from '@/constants/theme';
 import ChatListScreen from '../screens/ChatListScreen';
 import ChatScreen from '../screens/ChatScreen';
 import ProfileScreen from '../screens/ProfileScreen';
+import type {
+    BottomTabParamList,
+    RootStackParamList,
+} from '../types';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator<BottomTabParamList>();
@@ -21,7 +22,7 @@ const ChatListNavigator: React.FC = () => {
   return (
     <Tab.Navigator
       screenOptions={{
-        tabBarActiveTintColor: '#007AFF',
+        tabBarActiveTintColor: BrandColors.standard,
         tabBarInactiveTintColor: '#999',
         headerShown: true,
         headerStyle: {
@@ -93,7 +94,7 @@ export const RootNavigator: React.FC = () => {
           fontWeight: '600',
           color: '#000',
         },
-        headerTintColor: '#007AFF',
+        headerTintColor: BrandColors.standard,
       }}
     >
       <Stack.Screen

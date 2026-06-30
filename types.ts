@@ -1,33 +1,63 @@
-// Type definitions for the chat app
-export interface User {
-  id: string;
+export interface UserProfile {
+  uid: string;
   name: string;
-  avatar: string;
+  email: string;
+  photoURL: string;
+  searchName: string;
+  createdAt?: Date;
 }
 
-export interface Message {
+export interface FriendItem {
+  uid: string;
+  name: string;
+  email: string;
+  photoURL: string;
+  addedAt?: Date;
+}
+
+export interface FriendRequestItem {
   id: string;
-  sender: string;
+  fromUid: string;
+  toUid: string;
+  fromName: string;
+  fromPhotoURL: string;
+  toName: string;
+  toPhotoURL: string;
+  createdAt: Date;
+}
+
+export interface ChatMessage {
+  id: string;
+  senderId: string;
+  senderName: string;
+  senderPhotoURL: string;
   content: string;
-  timestamp: string;
-  isOwn: boolean;
+  createdAt: Date;
 }
 
-export interface Conversation {
-  userId: string;
-  userName: string;
-  messages: Message[];
-}
-
-export interface ChatData {
-  users: User[];
-  conversations: Conversation[];
+export interface ChatRoom {
+  id: string;
+  participants: string[];
+  participantNames: Record<string, string>;
+  participantPhotos: Record<string, string>;
+  lastMessage: string;
+  lastMessageTime: Date | null;
+  lastMessageSenderId: string;
+  unreadCount?: Record<string, number>;
+  friendUid: string;
+  friendName: string;
+  friendPhotoURL: string;
+  isFriend: boolean;
 }
 
 export type RootStackParamList = {
   Auth: undefined;
   MainTabs: undefined;
-  Chat: { userId: string; userName: string };
+};
+
+export type ChatsStackParamList = {
+  ChatList: undefined;
+  Chat: { roomId: string; friendId: string; friendName: string; friendPhotoURL?: string };
 };
 
 export type BottomTabParamList = {

@@ -37,6 +37,13 @@
             "backgroundColor": "#000000"
           }
         }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "允許存取相簿以設定個人頭像",
+          "cameraPermission": "允許使用相機以拍攝個人頭像"
+        }
       ]
     ],
     "experiments": {

@@ -10,6 +10,8 @@ import {
     View,
 } from 'react-native';
 
+import { BrandColors } from '@/constants/theme';
+
 const ProfileScreen: React.FC = () => {
   const [profileImage, setProfileImage] = useState<string | null>(null);
 
@@ -163,7 +165,7 @@ const styles = StyleSheet.create({
     marginBottom: 32,
   },
   button: {
-    backgroundColor: '#007AFF',
+    backgroundColor: BrandColors.standard,
     paddingVertical: 12,
     paddingHorizontal: 16,
     borderRadius: 8,
@@ -175,10 +177,10 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   cameraButton: {
-    backgroundColor: '#34C759',
+    backgroundColor: '#b19cff',
   },
   removeButton: {
-    backgroundColor: '#ff3b30',
+    backgroundColor: '#d498ff',
   },
   removeButtonText: {
     color: '#fff',

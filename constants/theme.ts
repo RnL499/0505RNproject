@@ -27,6 +27,16 @@ export const Colors = {
   },
 };
 
+export const BrandColors = {
+  standard: '#9900FF', // C40 M100
+  aux1: '#4DFFB3', // C70 Y30
+  aux2: '#0033CC', // C100 M80 Y20
+  aux3: '#B300FF', // C30 M100 (assumed)
+  aux4: '#FF80B2', // M50 Y30
+  aux5: '#FFCC66', // M20 Y60
+  black: '#000000', // K100
+};
+
 export const Fonts = Platform.select({
   ios: {
     /** iOS `UIFontDescriptorSystemDesignDefault` */
