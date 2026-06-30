@@ -59,48 +59,41 @@ const FindFriendsScreen: React.FC = () => {
       return;
     }
 
-    if (cleanSearchInput.includes('@')) {
-      console.log('🔍 開始搜尋用戶，搜尋字串為:', `"${cleanSearchInput}"`);
-      try {
-        const snapshot = await getDocs(collection(db, 'users'));
-        console.log('📊 Firestore 回傳的文件數量:', snapshot.size);
+    try {
+      const snapshot = await getDocs(collection(db, 'users'));
+      const foundUsers: UserProfile[] = snapshot.docs
+        .map((docSnap) => {
+          const data = docSnap.data() as any;
+          return {
+            uid: docSnap.id,
+            name: data.name || '',
+            email: data.email || data.Email || '',
+            photoURL: data.photoURL || '',
+            searchName: data.searchName || data.name?.toLowerCase() || '',
+            createdAt: data.createdAt ? new Date(data.createdAt) : new Date(),
+          } as UserProfile;
+        })
+        .filter((user) => user.uid !== currentUser?.uid)
+        .filter((user) => {
+          const lowerName = user.name.toLowerCase();
+          const lowerEmail = user.email.toLowerCase();
+          const lowerSearchName = user.searchName.toLowerCase();
+          const lowerUid = user.uid.toLowerCase();
+          return (
+            lowerUid.includes(cleanSearchInput) ||
+            lowerName.includes(cleanSearchInput) ||
+            lowerEmail.includes(cleanSearchInput) ||
+            lowerSearchName.includes(cleanSearchInput)
+          );
+        });
 
-        const foundUsers: UserProfile[] = snapshot.docs
-          .map((docSnap) => {
-            const data = docSnap.data() as any;
-            const dbEmail = ((data.email || data.Email || '') as string)
-              .trim()
-              .toLowerCase();
-            return {
-              uid: docSnap.id,
-              name: data.name || '',
-              email: data.email || data.Email || '',
-              photoURL: data.photoURL || '',
-              searchName: data.searchName || '',
-              createdAt: data.createdAt ? new Date(data.createdAt) : new Date(),
-              _normalizedEmail: dbEmail,
-            } as UserProfile & { _normalizedEmail: string };
-          })
-          .filter((user) => user._normalizedEmail === cleanSearchInput)
-          .filter((user) => user.uid !== currentUser?.uid)
-          .map(({ _normalizedEmail, ...user }) => user);
-
-        if (foundUsers.length === 0) {
-          Alert.alert('查無此用戶');
-          setSearchResultsState([]);
-        } else {
-          setSearchResultsState(foundUsers);
-        }
-      } catch (error: unknown) {
-        const message = error instanceof Error ? error.message : '搜尋用戶失敗';
-        console.error('搜尋用戶錯誤:', message);
-        Alert.alert('搜尋錯誤', message);
-        setSearchResultsState([]);
-      }
-      return;
+      setSearchResultsState(foundUsers);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : '搜尋用戶失敗';
+      console.error('搜尋用戶錯誤:', message);
+      Alert.alert('搜尋錯誤', message);
+      setSearchResultsState([]);
     }
-
-    setSearchResultsState(searchAllUsers(cleanSearchInput));
   };
 
   useEffect(() => {
@@ -287,8 +280,7 @@ const FindFriendsScreen: React.FC = () => {
         style={styles.input}
         placeholder="輸入名稱 / Email / ID"
         value={searchText}
-        onChangeText={setSearchText}
-        onSubmitEditing={() => handleSearch(searchText)}
+        onChangeText={handleSearch}
         returnKeyType="search"
         autoCapitalize="none"
       />
